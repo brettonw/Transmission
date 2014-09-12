@@ -3,22 +3,8 @@
 // range of strategies for preventing disease transfer
 
 // factors:
-// - Geographic Locality
 // - Activity level (some people will have more interactions than others, maybe
 //   males in general?
-// - perfect random mixing vs. sweep over every user...
-// - gestation/incubation period
-// - non-contagious phases (healed after initial infection, or like HSV in sporadic bursts)
-// - immunity (after catching it once)
-// - dying? withdrawing from population...
-
-// strategies
-// - Ignorance
-// - Abstinence/Avoidance
-// - Monogamy/Partner Preference/"Limited" Poly
-// - Prophylactic use
-// - Selective Partnering based on Testing/Knowledge
-// - self limiting behavior based on self knowledge
 
 // We start with a population of unspecified individuals, and run a clock. At
 // each tick of the clock we conduct an event. An event represents an
@@ -53,7 +39,7 @@ var states = {
     HEALTHY         : { name: "HEALTHY",      color: "#FFFFFF", susceptible: true,  contagious: 0.00 },
     INFECTED        : { name: "INFECTED",     color: "#FFC0C0", susceptible: false, contagious: 0.05, daysMin: 7, daysMax: 14 },
     CLINICAL        : { name: "CLINICAL",     color: "#FF0000", susceptible: false, contagious: 0.50, daysMin: 7, daysMax: 14 },
-    CONVALESCENT    : { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.05 }
+    CONVALESCENT    : { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00 }
 };
 
 function createPopulation () {
@@ -163,7 +149,7 @@ function startNewDay () {
 
 function tick () {
     if (! paused) {
-        if ((infectedCount > 0) && (infectedCount < populationSize)) {
+        if (infectedCount > 0) {
             // see if it's a new day
             if ((clock % eventsPerDiem) == 0) {
                 // do things that happen on a per day basis - we do this here to
@@ -188,8 +174,12 @@ function tick () {
 function click () {
     // pause and resume animation
     if (paused) {
-        paused = false;
-        tick ();
+		if (infectedCount == 0) {
+			main ();
+		} else {
+			paused = false;
+			tick ();
+		}
     } else {
         paused = true;
     }
