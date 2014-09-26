@@ -33,7 +33,7 @@ var individualEventsPerWeek = 2.0;
 var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0));
 
 // parameters on events
-var useProphylacticRate = 0.0;
+var useProphylacticRate = 0.2;
 var prophylacticEfficacy = 0.8;
 
 var lastAtomA, lastAtomB;
@@ -55,7 +55,7 @@ function createPopulation () {
             id: id,
             state: states.HEALTHY,
             day: -1,
-            useProphylactic: (Math.random () < useProphylacticRate) ? 0.9 : 0.1
+            useProphylactic: (Math.random () < useProphylacticRate) ? 0.8 : 0.2
         };
     }
 
@@ -194,10 +194,15 @@ function click () {
     }
 }
 
+function toHex(d) {
+    return ("0" + (Number(d).toString(16))).slice(-2).toUpperCase()
+}
+
 function makeGray(percent) {
     var value = Math.floor(percent * 255);
-    var stringValue = ("0" + (Number(value).toString(16))).slice(-2).toUpperCase();
-    return "#" + stringValue + stringValue + stringValue;
+    var alphaValue = 1.0 - percent;
+    return "rgba(" + value + ", " + value + ", " + value + ", " + alphaValue + ")";
+    //return "#" + stringValue + stringValue + stringValue + stringAlphaValue;
 }
 
 function makeSvg () {
