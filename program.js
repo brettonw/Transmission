@@ -30,7 +30,11 @@ var day;
 var clockDisplay;
 var paused;
 var individualEventsPerWeek = 2.0;
-var eventsPerDiem = Math.floor (populationSize * (individualEventsPerWeek / 7.0));
+var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0));
+
+// parameters on events
+var useProphylacticRate = 0.0;
+var prophylacticEfficacy = 0.8;
 
 var lastAtomA, lastAtomB;
 
@@ -50,7 +54,8 @@ function createPopulation () {
         population[id] = {
             id: id,
             state: states.HEALTHY,
-            day: -1
+            day: -1,
+            useProphylactic: (Math.random () < useProphylacticRate) ? 0.9 : 0.1
         };
     }
 
@@ -87,21 +92,25 @@ function conductEvent () {
 
     // now handle the event between these two individuals to see if transmission
     // occurs, only if just one of them is infected and the other is not
-    if (canTransmit (atomA, atomB) || canTransmit (atomB, atomA)) {
-        // if the infections would transfer...
-        if (Math.random () < (atomA.state.contagious + atomB.state.contagious)) {
-            var infectAtom = function (atom) {
-                if (atom.state == states.HEALTHY) {
-                    ++infectedCount;
-                    ++totalInfectedCount;
-                    atom.state = states.INFECTED;
-                    atom.day = day;
-                    atom.link.style.fill = atom.state.color;
-                }
-            };
+    if (canTransmit(atomA, atomB) || canTransmit(atomB, atomA)) {
+        // if a prophylactic is employed, and whether or not it prevents infection
+        var useProphylactic = Math.random() < ((atomA.useProphylactic + atomB.useProphylactic) / 2.0);
+        if ((!useProphylactic) || (Math.random() > prophylacticEfficacy)) {
+            // if the infections would transfer...
+            if (Math.random() < (atomA.state.contagious + atomB.state.contagious)) {
+                var infectAtom = function (atom) {
+                    if (atom.state == states.HEALTHY) {
+                        ++infectedCount;
+                        ++totalInfectedCount;
+                        atom.state = states.INFECTED;
+                        atom.day = day;
+                        atom.link.style.fill = atom.state.color;
+                    }
+                };
 
-            infectAtom (atomA);
-            infectAtom (atomB);
+                infectAtom(atomA);
+                infectAtom(atomB);
+            }
         }
     }
 
@@ -185,6 +194,12 @@ function click () {
     }
 }
 
+function makeGray(percent) {
+    var value = Math.floor(percent * 255);
+    var stringValue = ("0" + (Number(value).toString(16))).slice(-2).toUpperCase();
+    return "#" + stringValue + stringValue + stringValue;
+}
+
 function makeSvg () {
     // open the SVG and make the render port work like a mathematical system
     var svg="<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.25 -1.25 2.5 2.5\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
@@ -217,6 +232,10 @@ function makeSvg () {
         rect += " width=\"" + horizontalSize + "\" height=\"" + verticalSize + "\"";
         rect += " fill=\"" + atom.state.color + "\"";
         rect += " stroke=\"black\" stroke-width=\"0.005\" />"
+        rect += "<rect x=\"" + (x + (horizontalSize / 3.0)) + "\" y=\"" + (y + (verticalSize / 3.0)) + "\"";
+        rect += " width=\"" + (horizontalSize / 3.0) + "\" height=\"" + (verticalSize / 3.0) + "\"";
+        rect += " fill=\"" + makeGray (1.0 - atom.useProphylactic) + "\"";
+        rect += " stroke=\"none\" />"
         svg += rect;
     }
     svg += "</g>";
