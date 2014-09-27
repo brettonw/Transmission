@@ -39,24 +39,30 @@ var prophylacticEfficacy = 0.8;
 var lastAtomA, lastAtomB;
 
 // disease states with parameters
-var states = {
-    HEALTHY         : { name: "HEALTHY",      color: "#FFFFFF", susceptible: true,  contagious: 0.00 },
-    INFECTED        : { name: "INFECTED",     color: "#FFC0C0", susceptible: false, contagious: 0.05, daysMin: 7, daysMax: 14 },
-    CLINICAL        : { name: "CLINICAL",     color: "#FF0000", susceptible: false, contagious: 0.50, daysMin: 7, daysMax: 14 },
-    CONVALESCENT    : { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00 }
-};
+var states = diseases.rhinovirus;
 
-function createPopulation () {
+var filters = [
+    filterCanTransmit(states),
+    filterUseProphylactic(useProphylacticRate, prophylacticEfficacy)
+];
+
+var createPopulation = function () {
     population = [];
 
     // create all the individuals
     for (var id = 0; id < populationSize; ++id) {
-        population[id] = {
+        var atom = {
             id: id,
-            state: states.HEALTHY,
-            day: -1,
-            useProphylactic: (Math.random () < useProphylacticRate) ? 0.8 : 0.2
+            day: -1
         };
+
+        // loop over the filters
+        for (var i = 0, count = filters.length; i < count; ++i) {
+            filters[i].init(atom);
+        }
+
+        // assign the atom to the population
+        population[id] = atom;
     }
 
     // now seed one of the individuals with disease
@@ -67,7 +73,7 @@ function createPopulation () {
     infectedCount = totalInfectedCount = 1;
 };
 
-function conductEvent () {
+var conductEvent = function () {
     // clear the last event info by denoting those atoms as "active"
     lastAtomA.link.style.stroke = borderColorActive;
     lastAtomB.link.style.stroke = borderColorActive;
@@ -85,33 +91,26 @@ function conductEvent () {
     atomA.link.style.stroke = borderColorHighlight;
     atomB.link.style.stroke = borderColorHighlight;
 
-    // check if a transmission an occur
-    var canTransmit = function (a, b) {
-        return (a.state.susceptible && (b.state.contagious > 0.0));
+    // loop over the filters
+    var transmit = true;
+    for (var i = 0, count = filters.length; transmit && (i < count); ++i) {
+        transmit = filters[i].test(atomA, atomB);
     }
 
-    // now handle the event between these two individuals to see if transmission
-    // occurs, only if just one of them is infected and the other is not
-    if (canTransmit(atomA, atomB) || canTransmit(atomB, atomA)) {
-        // if a prophylactic is employed, and whether or not it prevents infection
-        var useProphylactic = Math.random() < ((atomA.useProphylactic + atomB.useProphylactic) / 2.0);
-        if ((!useProphylactic) || (Math.random() > prophylacticEfficacy)) {
-            // if the infections would transfer...
-            if (Math.random() < (atomA.state.contagious + atomB.state.contagious)) {
-                var infectAtom = function (atom) {
-                    if (atom.state == states.HEALTHY) {
-                        ++infectedCount;
-                        ++totalInfectedCount;
-                        atom.state = states.INFECTED;
-                        atom.day = day;
-                        atom.link.style.fill = atom.state.color;
-                    }
-                };
-
-                infectAtom(atomA);
-                infectAtom(atomB);
+    // if the transmit event succeeds, do the deed
+    if (transmit) {
+        var infectAtom = function (atom) {
+            if (atom.state == states.HEALTHY) {
+                ++infectedCount;
+                ++totalInfectedCount;
+                atom.state = states.INFECTED;
+                atom.day = day;
+                atom.link.style.fill = atom.state.color;
             }
-        }
+        };
+
+        infectAtom(atomA);
+        infectAtom(atomB);
     }
 
     // save this information for the next event
@@ -119,12 +118,12 @@ function conductEvent () {
     lastAtomB = atomB;
 }
 
-function allInfected () {
+var allInfected = function () {
     lastAtomA.link.style.stroke = borderColorActive;
     lastAtomB.link.style.stroke = borderColorActive;
 }
 
-function startNewDay () {
+var startNewDay = function () {
     day = Math.floor (clock / eventsPerDiem);
 
     // sweep over the population to see if somebody becomes contagious or heals
@@ -156,7 +155,7 @@ function startNewDay () {
     }
 }
 
-function tick () {
+var tick = function () {
     if (! paused) {
         if (infectedCount > 0) {
             // see if it's a new day
@@ -180,7 +179,7 @@ function tick () {
     clockDisplay.textContent = "Day " + day + " (" + clock + ", " + totalInfectedCount + "/" + populationSize + ")";
 }
 
-function click () {
+var click = function () {
     // pause and resume animation
     if (paused) {
 		if (infectedCount == 0) {
@@ -194,18 +193,13 @@ function click () {
     }
 }
 
-function toHex(d) {
-    return ("0" + (Number(d).toString(16))).slice(-2).toUpperCase()
-}
-
-function makeGray(percent) {
+var makeGray = function(percent) {
     var value = Math.floor(percent * 255);
     var alphaValue = 1.0 - percent;
     return "rgba(" + value + ", " + value + ", " + value + ", " + alphaValue + ")";
-    //return "#" + stringValue + stringValue + stringValue + stringAlphaValue;
 }
 
-function makeSvg () {
+var makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
     var svg="<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.25 -1.25 2.5 2.5\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
     svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
@@ -253,7 +247,7 @@ function makeSvg () {
     return svg;
 }
 
-function linkSvg () {
+var linkSvg = function () {
     for (var id = 0; id < populationSize; ++id) {
         var atom = population[id];
         var link = document.getElementById ("rect" + id);
@@ -269,7 +263,7 @@ function linkSvg () {
     lastAtomB = lastAtomA;
 }
 
-function main () {
+var main = function () {
     // reset the clock
     clock = day = 0;
     paused = true;
