@@ -13,6 +13,8 @@
 
 // events model transmission rates, affected by the various strategies
 
+var interactive = false;
+
 var borderColorHighlight = "#FFFF00";
 var borderColorActive = "#808080";
 
@@ -32,29 +34,41 @@ var paused;
 var individualEventsPerWeek = 2.0;
 var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0));
 
-// parameters on events
-var useProphylacticRate = 0.2;
-var prophylacticEfficacy = 0.8;
-
 var lastAtomA, lastAtomB;
 
 // disease states with parameters
-var states = diseases.rhinovirus;
+var states = diseases.perfect;
 
-var filters = [
-    filterCanTransmit(states),
-    filterUseProphylactic(useProphylacticRate, prophylacticEfficacy)
-];
+// set up the sampler
+//var sampler = randomSampler();
+var sampler = localManhattenSampler(1);
+//var sampler = strictLocalManhattenSampler(1);
+
+// set up the filters
+var filters = [];
+filters.push (filterCanTransmit(states));
+
+var useProphylacticRate = 0.2;
+var prophylacticEfficacy = 0.8;
+filters.push(filterUseProphylactic(useProphylacticRate, prophylacticEfficacy));
+//filters.push(filterUseProphylactic(0, 0));
+
+var atomPrototype = Object.create(null);
+atomPrototype.map = function () {
+    return {
+        x: this.id % populationWidth,
+        y: Math.floor(this.id / populationWidth)
+    };
+};
 
 var createPopulation = function () {
     population = [];
 
     // create all the individuals
     for (var id = 0; id < populationSize; ++id) {
-        var atom = {
-            id: id,
-            day: -1
-        };
+        var atom = Object.create (atomPrototype);
+        atom.id = id;
+        atom.day = -1;
 
         // loop over the filters
         for (var i = 0, count = filters.length; i < count; ++i) {
@@ -79,17 +93,17 @@ var conductEvent = function () {
     lastAtomB.link.style.stroke = borderColorActive;
 
     // randomly pair two individuals from the population
-    var indexA = Math.floor (Math.random () * populationSize);
-    var indexB = indexA;
-    while (indexB == indexA) {
-        indexB = Math.floor (Math.random () * populationSize);
+    var atomA = population[Math.floor(Math.random() * populationSize)];
+    var atomB = population[Math.floor(Math.random() * populationSize)];
+    while (! sampler.pair(atomA, atomB)) {
+        atomB = population[Math.floor(Math.random() * populationSize)];
     }
-    var atomA = population[indexA];
-    var atomB = population[indexB];
 
     // highlight this pairing
-    atomA.link.style.stroke = borderColorHighlight;
-    atomB.link.style.stroke = borderColorHighlight;
+    if (interactive) {
+        atomA.link.style.stroke = borderColorHighlight;
+        atomB.link.style.stroke = borderColorHighlight;
+    }
 
     // loop over the filters
     var transmit = true;
@@ -157,7 +171,7 @@ var startNewDay = function () {
 
 var tick = function () {
     if (! paused) {
-        if (infectedCount > 0) {
+        if ((infectedCount > 0) && (infectedCount < populationSize)) {
             // see if it's a new day
             if ((clock % eventsPerDiem) == 0) {
                 // do things that happen on a per day basis - we do this here to
@@ -169,8 +183,8 @@ var tick = function () {
             ++clock;
 
             // conduct an event and loop back @ 30Hz
-            conductEvent ();
-            setTimeout(tick, 33);
+            conductEvent();
+            setTimeout(tick, interactive ? 33 : 1);
         } else {
             allInfected ();
             paused = true;
@@ -182,7 +196,7 @@ var tick = function () {
 var click = function () {
     // pause and resume animation
     if (paused) {
-		if (infectedCount == 0) {
+        if ((infectedCount == 0) || (infectedCount == populationSize)) {
 			main ();
 		} else {
 			paused = false;
@@ -219,10 +233,9 @@ var makeSvg = function () {
         var atom = population[id];
 
         // compute the position of the block
-        var x = (id % populationWidth) + 1;
-        x = -1 + (x * horizontalSpacing) + horizontalOffset;
-        var y = Math.floor (id / populationWidth) + 1;
-        y = -1 + (y * verticalSpacing) + verticalOffset;
+        var xy = atom.map();
+        var x = -1 + ((xy.x + 1) * horizontalSpacing) + horizontalOffset;
+        var y = -1 + ((xy.y + 1) * verticalSpacing) + verticalOffset;
 
         // enumerate the block
         var rect = "";
