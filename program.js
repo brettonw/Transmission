@@ -41,8 +41,10 @@ var states = diseases.perfect;
 
 // set up the sampler
 //var sampler = randomSampler();
-var sampler = localManhattenSampler(1);
-//var sampler = strictLocalManhattenSampler(1);
+//var sampler = strictL0Sampler(1.0);
+var sampler = strictL1Sampler(1.8);
+//var sampler = probabilityL0Sampler(1.0);
+//var sampler = probabilityL1Sampler(1.0);
 
 // set up the filters
 var filters = [];
