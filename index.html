@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
@@ -10,7 +10,18 @@
 	<title>Transmission</title>
     </head>
     <body onLoad="main ()">
-        <div id="display" />
+        <table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="150px" height="100%">
+                    <div>
+                        <input type="checkbox" id="interactiveCheckbox" onchange="interactiveCheckboxChanged(this);" />
+                    </div>
+                </td>
+                <td width="auto">
+                    <div id="display" />
+                </td>
+            </tr>
+        </table>
     </body>
 </html>
 

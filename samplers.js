@@ -10,7 +10,7 @@ var sampler = function () {
 };
 */
 
-var randomSampler = function () {
+var randomSampler = function (unused) {
     var s = Object.create(null);
     s.pair = function (a, b) {
         return (a.id != b.id);
@@ -102,4 +102,16 @@ var probabilityL1Sampler = function (width) {
         return probability.pair(a, b);
     };
     return s;
+};
+
+var samplers = {
+    random: { order: 0, make: randomSampler, needsWidth: false },
+    strictL0: { order: 1, make: strictL0Sampler, needsWidth: true },
+    strictL1: { order: 2, make: strictL1Sampler, needsWidth: true },
+    probableL0: { order: 3, make: probabilityL0Sampler, needsWidth: true },
+    probableL1: { order: 4, make: probabilityL1Sampler, needsWidth: true },
+};
+
+samplers.make = function (name, width) {
+    return this[name].make(width);
 };

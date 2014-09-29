@@ -37,14 +37,14 @@ var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0))
 var lastAtomA, lastAtomB;
 
 // disease states with parameters
-var states = diseases.perfect;
+var states = diseases.rhinovirus;
 
 // set up the sampler
-//var sampler = randomSampler();
-//var sampler = strictL0Sampler(1.0);
-var sampler = strictL1Sampler(1.8);
-//var sampler = probabilityL0Sampler(1.0);
-//var sampler = probabilityL1Sampler(1.0);
+//var sampler = samplers.make("random", 0);
+//var sampler = samplers.make("strictL0", 1.0);
+//var sampler = samplers.make("strictL1", 1.8);
+//var sampler = samplers.make("probableL0", 1.0);
+var sampler = samplers.make("probableL1", 1.0);
 
 // set up the filters
 var filters = [];
@@ -52,8 +52,8 @@ filters.push (filterCanTransmit(states));
 
 var useProphylacticRate = 0.2;
 var prophylacticEfficacy = 0.8;
-filters.push(filterUseProphylactic(useProphylacticRate, prophylacticEfficacy));
-//filters.push(filterUseProphylactic(0, 0));
+//filters.push(filterUseProphylactic(useProphylacticRate, prophylacticEfficacy));
+filters.push(filterUseProphylactic(0, 0));
 
 var atomPrototype = Object.create(null);
 atomPrototype.map = function () {
@@ -289,3 +289,6 @@ var main = function () {
     linkSvg ();
 }
 
+var interactiveCheckboxChanged = function (checkbox) {
+    interactive = checkbox.checked;
+}
