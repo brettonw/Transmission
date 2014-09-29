@@ -13,48 +13,36 @@
 
 // events model transmission rates, affected by the various strategies
 
-var interactive = false;
+var animatePairs;
 
 var borderColorHighlight = "#FFFF00";
 var borderColorActive = "#808080";
 
 // the population
-var populationWidth = 10;
-var populationHeight = 10;
-var populationSize = populationWidth * populationHeight;
+var populationWidth;
+var populationHeight;
+var populationSize;
 var population;
-var infectedCount = 0;
-var totalInfectedCount = 0;
+var infectedCount;
+var totalInfectedCount;
 
 // the clock
 var clock;
 var day;
 var clockDisplay;
 var paused;
-var individualEventsPerWeek = 2.0;
-var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0));
+var eventRate;
+var eventsPerDiem;
 
 var lastAtomA, lastAtomB;
 
-// disease states with parameters
-var states = diseases.perfect;
-
-// set up the sampler
-//var sampler = samplers.make("random", 0);
-var sampler = samplers.make("strictL0", 1.0);
-//var sampler = samplers.make("strictL0", 2.0);
-//var sampler = samplers.make("strictL1", 1.8);
-//var sampler = samplers.make("probableL0", 1.0);
-//var sampler = samplers.make("probableL1", 1.4);
-
-// set up the filters
-var filters = [];
-filters.push (filterCanTransmit(states));
-
+// set up prophylactics
+/*
 var useProphylacticRate = 0.2;
 var prophylacticEfficacy = 0.8;
 //filters.push(filterUseProphylactic(useProphylacticRate, prophylacticEfficacy));
 filters.push(filterUseProphylactic(0, 0));
+*/
 
 var atomPrototype = Object.create(null);
 atomPrototype.map = function () {
@@ -85,7 +73,7 @@ var createPopulation = function () {
     // now seed one of the individuals with disease
     var randomIndex = Math.floor (Math.random () * populationSize);
     var atom = population[randomIndex];
-    atom.state = states.INFECTED;
+    atom.state = disease.INFECTED;
     atom.day = day;
     infectedCount = totalInfectedCount = 1;
 };
@@ -103,7 +91,7 @@ var conductEvent = function () {
     }
 
     // highlight this pairing
-    if (interactive) {
+    if (animatePairs) {
         atomA.link.style.stroke = borderColorHighlight;
         atomB.link.style.stroke = borderColorHighlight;
     }
@@ -117,10 +105,10 @@ var conductEvent = function () {
     // if the transmit event succeeds, do the deed
     if (transmit) {
         var infectAtom = function (atom) {
-            if (atom.state == states.HEALTHY) {
+            if (atom.state == disease.HEALTHY) {
                 ++infectedCount;
                 ++totalInfectedCount;
-                atom.state = states.INFECTED;
+                atom.state = disease.INFECTED;
                 atom.day = day;
                 atom.link.style.fill = atom.state.color;
             }
@@ -149,20 +137,20 @@ var startNewDay = function () {
         var atom = population[id];
 
         switch (atom.state.name) {
-            case states.INFECTED.name: {
+            case disease.INFECTED.name: {
                 var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random () < probability) {
-                    atom.state = states.CLINICAL;
+                    atom.state = disease.CLINICAL;
                     atom.day = day;
                     atom.link.style.fill = atom.state.color;
                 }
             }
             break;
-            case states.CLINICAL.name: {
+            case disease.CLINICAL.name: {
                 var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random () < probability) {
                     --infectedCount;
-                    atom.state = states.CONVALESCENT;
+                    atom.state = disease.CONVALESCENT;
                     atom.day = day;
                     atom.link.style.fill = atom.state.color;
                 }
@@ -187,7 +175,7 @@ var tick = function () {
 
             // conduct an event and loop back @ 30Hz
             conductEvent();
-            setTimeout(tick, interactive ? 33 : 1);
+            setTimeout(tick, animatePairs ? 33 : 1);
         } else {
             allInfected ();
             paused = true;
@@ -282,14 +270,11 @@ var linkSvg = function () {
 var main = function () {
     // reset the clock
     clock = day = 0;
+    infectedCount = totalInfectedCount = 0;
     paused = true;
 
     createPopulation ();
     var display = makeSvg ();
     document.getElementById ("display").innerHTML = display;
     linkSvg ();
-}
-
-var interactiveCheckboxChanged = function (checkbox) {
-    interactive = checkbox.checked;
 }

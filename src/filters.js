@@ -49,3 +49,4 @@ var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy)
     return f;
 };
 
+var filters = [];

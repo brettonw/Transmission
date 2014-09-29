@@ -53,3 +53,5 @@ var diseases = {
         CONVALESCENT: { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00, daysMin: 1500, daysMax: 6000 }
     }
 };
+
+var disease;
