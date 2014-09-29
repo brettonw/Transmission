@@ -43,7 +43,7 @@ var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy)
         // combination of the proclivities of the two atoms. return true if no
         // prophylactic is employed, or if the prophylactic fails
         var useProphylactic = Math.random() < ((a.useProphylactic + b.useProphylactic) / 2.0);
-        return ((!useProphylactic) || (Math.random() > prophylacticEfficacy));
+        return ((!useProphylactic) || (Math.random() >= prophylacticEfficacy));
     };
 
     return f;

@@ -75,9 +75,9 @@ var probabilitySampler = function (width, normFunction) {
             var distance = normFunction(a, b);
 
             // compute a likelihood these two candidates should pair based on a
-            // width bias that scales down on a cubic
+            // width bias that scales down on a power ratio
             var baseProbability = width / distance;
-            var probability = baseProbability * baseProbability * baseProbability;
+            var probability = Math.pow (baseProbability, 4);
             var roll = Math.random();
             return roll < probability;
         }

@@ -37,14 +37,15 @@ var eventsPerDiem = Math.floor(populationSize * (individualEventsPerWeek / 7.0))
 var lastAtomA, lastAtomB;
 
 // disease states with parameters
-var states = diseases.rhinovirus;
+var states = diseases.perfect;
 
 // set up the sampler
 //var sampler = samplers.make("random", 0);
-//var sampler = samplers.make("strictL0", 1.0);
+var sampler = samplers.make("strictL0", 1.0);
+//var sampler = samplers.make("strictL0", 2.0);
 //var sampler = samplers.make("strictL1", 1.8);
 //var sampler = samplers.make("probableL0", 1.0);
-var sampler = samplers.make("probableL1", 1.0);
+//var sampler = samplers.make("probableL1", 1.4);
 
 // set up the filters
 var filters = [];
@@ -217,7 +218,7 @@ var makeGray = function(percent) {
 
 var makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
-    var svg="<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.25 -1.25 2.5 2.5\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
+    var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
     svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
 
     // compute the placement parameters
