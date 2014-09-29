@@ -35,8 +35,8 @@ var onLoad = function () {
             element.oninput();
         }
     };
-    setValue("populationWidthRange", 8);
-    setValue("populationHeightRange", 8);
+    setValue("populationWidthRange", 10);
+    setValue("populationHeightRange", 10);
     setValue("diseaseSelect", "perfect");
     setValue("samplerSelect", "random");
     setValue("eventRateRange", 2.0);
