@@ -113,6 +113,7 @@ var samplers = {
     "strictL1 (w=2.0)": { order: 5, make: strictL1Sampler, width: 2.0 },
     "probableL0 (w=1.0)": { order: 6, make: probabilityL0Sampler, width: 1.0 },
     "probableL1 (w=1.4)": { order: 7, make: probabilityL1Sampler, width: 1.4 },
+    "probableL1 (w=3.0)": { order: 7, make: probabilityL1Sampler, width: 3.0 },
 };
 
 samplers.make = function (name) {

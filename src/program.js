@@ -13,18 +13,18 @@
 
 // events model transmission rates, affected by the various strategies
 
-var animatePairs;
+var animatePairs = false;
 
 var borderColorHighlight = "#FFFF00";
 var borderColorActive = "#808080";
 
 // the population
-var populationWidth;
-var populationHeight;
-var populationSize;
+var populationWidth = 8;
+var populationHeight = 8;
+var populationSize = populationWidth * populationHeight;
 var population;
-var infectedCount;
-var totalInfectedCount;
+var infectedCount = 0;
+var totalInfectedCount = 0;
 
 // the clock
 var clock;
@@ -270,7 +270,6 @@ var linkSvg = function () {
 var main = function () {
     // reset the clock
     clock = day = 0;
-    infectedCount = totalInfectedCount = 0;
     paused = true;
 
     createPopulation ();

@@ -49,13 +49,13 @@ var onLoad = function () {
 }
 
 var synchUi = function () {
-    if (loaded) {
+    if (loaded == true) {
         main();
     }
 }
 
 var populationWidthRangeChanged = function (range) {
-    populationWidth = range.value;
+    populationWidth = new Number (range.value);
     populationSize = populationWidth * populationHeight;
     synchUi();
 }
@@ -65,7 +65,7 @@ var populationWidthRangeInput = function (range) {
 }
 
 var populationHeightRangeChanged = function (range) {
-    populationHeight = range.value;
+    populationHeight = new Number (range.value);
     populationSize = populationWidth * populationHeight;
     synchUi();
 }
@@ -79,7 +79,7 @@ var animatePairsCheckboxChanged = function (checkbox) {
 }
 
 var eventRateRangeChanged = function (range) {
-    eventRate = range.value;
+    eventRate = new Number (range.value);
     eventsPerDiem = Math.floor(populationSize * (eventRate / 7.0));
     synchUi();
 }
