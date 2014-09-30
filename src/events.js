@@ -54,10 +54,15 @@ var synchUi = function () {
     }
 }
 
+var updatePopulationSize = function () {
+    populationSize = populationWidth * populationHeight;
+    eventsPerDiem = Math.floor(((populationSize * eventRate) / 7.0) + 0.5);
+    synchUi();
+}
+
 var populationWidthRangeChanged = function (range) {
     populationWidth = new Number (range.value);
-    populationSize = populationWidth * populationHeight;
-    synchUi();
+    updatePopulationSize ();
 }
 
 var populationWidthRangeInput = function (range) {
@@ -66,8 +71,7 @@ var populationWidthRangeInput = function (range) {
 
 var populationHeightRangeChanged = function (range) {
     populationHeight = new Number (range.value);
-    populationSize = populationWidth * populationHeight;
-    synchUi();
+    updatePopulationSize ();
 }
 
 var populationHeightRangeInput = function (range) {
@@ -80,8 +84,7 @@ var animatePairsCheckboxChanged = function (checkbox) {
 
 var eventRateRangeChanged = function (range) {
     eventRate = new Number (range.value);
-    eventsPerDiem = Math.floor(populationSize * (eventRate / 7.0));
-    synchUi();
+    updatePopulationSize ();
 }
 
 var eventRateRangeInput = function (range) {

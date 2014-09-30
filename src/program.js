@@ -162,7 +162,7 @@ var startNewDay = function () {
 
 var tick = function () {
     if (! paused) {
-        if ((infectedCount > 0) && (infectedCount < populationSize)) {
+        if ((infectedCount > 0) && (totalInfectedCount < populationSize)) {
             // see if it's a new day
             if ((clock % eventsPerDiem) == 0) {
                 // do things that happen on a per day basis - we do this here to
@@ -187,7 +187,7 @@ var tick = function () {
 var click = function () {
     // pause and resume animation
     if (paused) {
-        if ((infectedCount == 0) || (infectedCount == populationSize)) {
+        if ((infectedCount == 0) || (totalInfectedCount == populationSize)) {
 			main ();
 		} else {
 			paused = false;
