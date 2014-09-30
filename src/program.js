@@ -198,12 +198,6 @@ var click = function () {
     }
 }
 
-var makeGray = function(percent) {
-    var value = Math.floor(percent * 255);
-    var alphaValue = 1.0 - percent;
-    return "rgba(" + value + ", " + value + ", " + value + ", " + alphaValue + ")";
-}
-
 var makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
     var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
@@ -228,18 +222,10 @@ var makeSvg = function () {
         var x = -1 + ((xy.x + 1) * horizontalSpacing) + horizontalOffset;
         var y = -1 + ((xy.y + 1) * verticalSpacing) + verticalOffset;
 
-        // enumerate the block
-        var rect = "";
-        rect += "<rect id=\"rect" + id + "\"";
-        rect += " x=\"" + x + "\" y=\"" + y + "\"";
-        rect += " width=\"" + horizontalSize + "\" height=\"" + verticalSize + "\"";
-        rect += " fill=\"" + atom.state.color + "\"";
-        rect += " stroke=\"black\" stroke-width=\"0.005\" />"
-        rect += "<rect x=\"" + (x + (horizontalSize / 3.0)) + "\" y=\"" + (y + (verticalSize / 3.0)) + "\"";
-        rect += " width=\"" + (horizontalSize / 3.0) + "\" height=\"" + (verticalSize / 3.0) + "\"";
-        rect += " fill=\"" + makeGray (1.0 - atom.useProphylactic) + "\"";
-        rect += " stroke=\"none\" />"
-        svg += rect;
+        // loop over the filters
+        for (var i = 0, count = filters.length; i < count ; ++i) {
+            svg += filters[i].render(atom, x, y, horizontalSize, verticalSize);
+        }
     }
     svg += "</g>";
 

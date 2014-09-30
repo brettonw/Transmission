@@ -6,10 +6,15 @@ var filter = function () {
         // set up any persistent parameters in the atom
     };
 
-    f.test = function (a, b) {
+    f.test = function (atomA, atomB) {
         // return true if the disease would pass this test and transmit between two atoms
         return true;
     };
+
+    f.render = function (atom, x, y, width, height) {
+        // return an SVG rendering command within the box provided
+        return "<rect ... />";
+    }
 
     return f;
 };
@@ -29,6 +34,17 @@ var filterCanTransmit = function (states) {
             false;
     };
 
+    f.render = function (atom, x, y, width, height) {
+        // return an SVG rendering command within the box provided
+        var rect = "";
+        rect += "<rect id=\"rect" + atom.id + "\"";
+        rect += " x=\"" + x + "\" y=\"" + y + "\"";
+        rect += " width=\"" + width + "\" height=\"" + height + "\"";
+        rect += " fill=\"" + atom.state.color + "\"";
+        rect += " stroke=\"black\" stroke-width=\"0.005\" />"
+        return rect;
+    }
+
     return f;
 };
 
@@ -45,6 +61,22 @@ var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy)
         var useProphylactic = Math.random() < ((a.useProphylactic + b.useProphylactic) / 2.0);
         return ((!useProphylactic) || (Math.random() >= prophylacticEfficacy));
     };
+
+    f.render = function (atom, x, y, width, height) {
+        var makeGray = function (percent) {
+            var value = Math.floor(percent * 255);
+            var alphaValue = 1.0 - percent;
+            return "rgba(" + value + ", " + value + ", " + value + ", " + alphaValue + ")";
+        }
+
+        // return an SVG rendering command within the box provided
+        var rect = "";
+        rect += "<rect x=\"" + (x + (width / 3.0)) + "\" y=\"" + (y + (height / 3.0)) + "\"";
+        rect += " width=\"" + (width / 3.0) + "\" height=\"" + (height / 3.0) + "\"";
+        rect += " fill=\"" + makeGray(1.0 - atom.useProphylactic) + "\"";
+        rect += " stroke=\"none\" />"
+        return rect;
+    }
 
     return f;
 };

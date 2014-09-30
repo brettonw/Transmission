@@ -104,20 +104,29 @@ var probabilityL1Sampler = function (width) {
     return s;
 };
 
+var knownPartnerBiasSampler = function (count) {
+    var s = Object.create(null);
+    s.pair = function (a, b) {
+        return true;
+    };
+    return s;
+}
+
 var samplers = {
-    "random": { order: 0, make: randomSampler, width: 0.0 },
-    "strictL0 (w=1.0)": { order: 1, make: strictL0Sampler, width: 1.0 },
-    "strictL0 (w=2.0)": { order: 2, make: strictL0Sampler, width: 2.0 },
-    "strictL1 (w=1.0)": { order: 3, make: strictL1Sampler, width: 1.0 },
-    "strictL1 (w=1.5)": { order: 4, make: strictL1Sampler, width: 1.5 },
-    "strictL1 (w=2.0)": { order: 5, make: strictL1Sampler, width: 2.0 },
-    "probableL0 (w=1.0)": { order: 6, make: probabilityL0Sampler, width: 1.0 },
-    "probableL1 (w=1.4)": { order: 7, make: probabilityL1Sampler, width: 1.4 },
-    "probableL1 (w=3.0)": { order: 7, make: probabilityL1Sampler, width: 3.0 },
+    "Random": { order: 0, make: randomSampler, param: null },
+    "Strictly Local (L0, w=1.0)": { order: 1, make: strictL0Sampler, param: 1.0 },
+    "Strictly Local (L0, w=2.0)": { order: 2, make: strictL0Sampler, param: 2.0 },
+    "Strictly Local (L1, w=1.0)": { order: 3, make: strictL1Sampler, param: 1.0 },
+    "Strictly Local (L1, w=1.5)": { order: 4, make: strictL1Sampler, param: 1.5 },
+    "Strictly Local (L1, w=2.0)": { order: 5, make: strictL1Sampler, param: 2.0 },
+    "Probably Local (L0, w=1.0)": { order: 6, make: probabilityL0Sampler, param: 1.0 },
+    "Probably Local (L1, w=1.4)": { order: 7, make: probabilityL1Sampler, param: 1.4 },
+    "Probably Local (L1, w=2.0)": { order: 7, make: probabilityL1Sampler, param: 2.0 },
+    "Probably Local (L1, w=3.0)": { order: 7, make: probabilityL1Sampler, param: 3.0 },
 };
 
 samplers.make = function (name) {
-    return this[name].make(this[name].width);
+    return this[name].make(this[name].param);
 };
 
 var sampler;

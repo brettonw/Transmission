@@ -38,7 +38,7 @@ var onLoad = function () {
     setValue("populationWidthRange", 10);
     setValue("populationHeightRange", 10);
     setValue("diseaseSelect", "perfect");
-    setValue("samplerSelect", "random");
+    setValue("samplerSelect", "Random");
     setValue("eventRateRange", 2.0);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
 
@@ -100,7 +100,7 @@ var diseaseSelectChanged = function (select) {
     filters.push(filterCanTransmit(disease));
 
     // XXX temporarily use bogus prophylactics
-    filters.push(filterUseProphylactic(0, 0));
+    //filters.push(filterUseProphylactic(0, 0));
 
     synchUi();
 }
