@@ -139,23 +139,44 @@ var startNewDay = function () {
         switch (atom.state.name) {
             case disease.INFECTED.name: {
                 var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
-                if (Math.random () < probability) {
+                if (Math.random() < probability) {
+                    // an infected individual might become clinical
                     atom.state = disease.CLINICAL;
                     atom.day = day;
                     atom.link.style.fill = atom.state.color;
                 }
             }
-            break;
+                break;
             case disease.CLINICAL.name: {
                 var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
-                if (Math.random () < probability) {
-                    --infectedCount;
+                if (Math.random() < probability) {
+                    // a clinical individual might get better, and become convalescent
+                    if (disease.CONVALESCENT.recurrence == 0) {
+                        --infectedCount;
+                    }
                     atom.state = disease.CONVALESCENT;
                     atom.day = day;
                     atom.link.style.fill = atom.state.color;
                 }
             }
-            break;
+                break;
+            case disease.CONVALESCENT.name: {
+                var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
+                if (Math.random() < probability) {
+                    // a convalescent individual might return to healthy
+                    --totalInfectedCount;
+                    atom.state = disease.HEALTHY;
+                    atom.day = -1;
+                    atom.link.style.fill = atom.state.color;
+                } else if (Math.random() < atom.state.recurrence) {
+                    // or a convalescent individual might have a recurrence
+                    ++infectedCount;
+                    atom.state = disease.CLINICAL;
+                    atom.day = day;
+                    atom.link.style.fill = atom.state.color;
+                }
+            }
+                break;
         }
     }
 }
