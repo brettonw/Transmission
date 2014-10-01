@@ -4,6 +4,7 @@ var diseases = {
         HEALTHY: { name: "HEALTHY", color: "#FFFFFF", susceptible: true, contagious: 0.00 },
         INFECTED: { name: "INFECTED", color: "#FFC0C0", susceptible: false, contagious: 0.00, daysMin: 7, daysMax: 14 },
         CLINICAL: { name: "CLINICAL", color: "#FF0000", susceptible: false, contagious: 1.00, daysMin: 36500, daysMax: 36500 },
+        CONVALESCENT: { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00, recurrence: 0.00, daysMin: 0, daysMax: 1 }
     },
     "Recurrent": {
         HEALTHY: { name: "HEALTHY", color: "#FFFFFF", susceptible: true, contagious: 0.00 },

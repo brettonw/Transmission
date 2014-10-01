@@ -27,9 +27,9 @@ var filterCanTransmit = function (states) {
     };
 
     f.test = function (a, b) {
-        // if the pairing is susceptible to a transfer event, return true if 
+        // if the pairing is susceptible to a transfer event, return true if
         // a roll of the dice results in a transfer, otherwise false
-        return ((a.state.susceptible && (b.state.contagious > 0.0)) || (b.state.susceptible && (a.state.contagious > 0.0))) ? 
+        return ((a.state.susceptible && (b.state.contagious > 0.0)) || (b.state.susceptible && (a.state.contagious > 0.0))) ?
             (Math.random() < (a.state.contagious + b.state.contagious)) :
             false;
     };
@@ -48,18 +48,24 @@ var filterCanTransmit = function (states) {
     return f;
 };
 
-var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy) {
+var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy, userProbability, nonUserProbability, blendBias) {
     var f = Object.create(null);
     f.init = function (a) {
-        a.useProphylactic = (Math.random() < useProphylacticRate) ? 0.8 : 0.2
+        a.useProphylactic = (Math.random() < useProphylacticRate) ? userProbability : nonUserProbability;
     };
 
     f.test = function (a, b) {
         // first determine if a prophylactic would be used. we use a
-        // combination of the proclivities of the two atoms. return true if no
-        // prophylactic is employed, or if the prophylactic fails
-        var useProphylactic = Math.random() < ((a.useProphylactic + b.useProphylactic) / 2.0);
-        return ((!useProphylactic) || (Math.random() >= prophylacticEfficacy));
+        // combination of the proclivities of the two atoms.
+
+        // swap the two atoms if b is more likely to use prophylactics than a
+        if (b.useProphylactic > a.useProphylactic) {
+            var c = a; a = b; b = c;
+        }
+        var useProbability = ((a.useProphylactic * blendBias) + (b.useProphylactic * (1.0 - blendBias)));
+
+        // return true if no prophylactic is employed, or if the prophylactic fails
+        return ((Math.random() > useProbability) || (Math.random() >= prophylacticEfficacy));
     };
 
     f.render = function (atom, x, y, width, height) {

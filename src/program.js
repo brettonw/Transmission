@@ -44,14 +44,6 @@ var prophylacticEfficacy = 0.8;
 filters.push(filterUseProphylactic(0, 0));
 */
 
-var atomPrototype = Object.create(null);
-atomPrototype.map = function () {
-    return {
-        x: this.id % populationWidth,
-        y: Math.floor(this.id / populationWidth)
-    };
-};
-
 var createPopulation = function () {
     population = [];
 
@@ -59,7 +51,8 @@ var createPopulation = function () {
     for (var id = 0; id < populationSize; ++id) {
         var atom = Object.create (atomPrototype);
         atom.id = id;
-        atom.day = -1;
+        atom.events = [];
+
 
         // loop over the filters
         for (var i = 0, count = filters.length; i < count; ++i) {
@@ -73,8 +66,7 @@ var createPopulation = function () {
     // now seed one of the individuals with disease
     var randomIndex = Math.floor (Math.random () * populationSize);
     var atom = population[randomIndex];
-    atom.state = disease.INFECTED;
-    atom.day = day;
+    atom.setState (disease.INFECTED, null);
     infectedCount = totalInfectedCount = 1;
 };
 
@@ -104,18 +96,10 @@ var conductEvent = function () {
 
     // if the transmit event succeeds, do the deed
     if (transmit) {
-        var infectAtom = function (atom) {
-            if (atom.state == disease.HEALTHY) {
-                ++infectedCount;
-                ++totalInfectedCount;
-                atom.state = disease.INFECTED;
-                atom.day = day;
-                atom.link.style.fill = atom.state.color;
-            }
-        };
-
-        infectAtom(atomA);
-        infectAtom(atomB);
+        atomA.infectBy (atomB);
+        atomB.infectBy (atomA);
+        ++infectedCount;
+        ++totalInfectedCount;
     }
 
     // save this information for the next event
@@ -138,42 +122,34 @@ var startNewDay = function () {
 
         switch (atom.state.name) {
             case disease.INFECTED.name: {
-                var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
+                var probability = ((day - atom.day ()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // an infected individual might become clinical
-                    atom.state = disease.CLINICAL;
-                    atom.day = day;
-                    atom.link.style.fill = atom.state.color;
+                    atom.setState (disease.CLINICAL, null);
                 }
             }
                 break;
             case disease.CLINICAL.name: {
-                var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
+                var probability = ((day - atom.day ()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // a clinical individual might get better, and become convalescent
                     if (disease.CONVALESCENT.recurrence == 0) {
                         --infectedCount;
                     }
-                    atom.state = disease.CONVALESCENT;
-                    atom.day = day;
-                    atom.link.style.fill = atom.state.color;
+                    atom.setState (disease.CONVALESCENT, null);
                 }
             }
                 break;
             case disease.CONVALESCENT.name: {
-                var probability = ((day - atom.day) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
+                var probability = ((day - atom.day ()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // a convalescent individual might return to healthy
                     --totalInfectedCount;
-                    atom.state = disease.HEALTHY;
-                    atom.day = -1;
-                    atom.link.style.fill = atom.state.color;
+                    atom.setState (disease.HEALTHY, null);
                 } else if (Math.random() < atom.state.recurrence) {
                     // or a convalescent individual might have a recurrence
                     ++infectedCount;
-                    atom.state = disease.CLINICAL;
-                    atom.day = day;
-                    atom.link.style.fill = atom.state.color;
+                    atom.setState (disease.CLINICAL, null);
                 }
             }
                 break;

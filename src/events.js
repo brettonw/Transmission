@@ -37,7 +37,7 @@ var onLoad = function () {
     };
     setValue("populationWidthRange", 10);
     setValue("populationHeightRange", 10);
-    setValue("diseaseSelect", "perfect");
+    setValue("diseaseSelect", "Perfect");
     setValue("samplerSelect", "Random");
     setValue("eventRateRange", 2.0);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
@@ -99,8 +99,8 @@ var diseaseSelectChanged = function (select) {
     filters = [];
     filters.push(filterCanTransmit(disease));
 
-    // XXX temporarily use bogus prophylactics
-    //filters.push(filterUseProphylactic(0, 0));
+    // XXX temporarily use prophylactics
+    filters.push(filterUseProphylactic(0.5, 0.95, 0.95, 0.25, 0.66));
 
     synchUi();
 }
