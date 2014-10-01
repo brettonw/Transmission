@@ -11,18 +11,14 @@ var onLoad = function () {
     var diseaseSelect = document.getElementById("diseaseSelect");
     var diseaseNames = Object.keys(diseases).sort();
     for (var i = 0, count = diseaseNames.length; i < count; ++i) {
-        var diseaseName = diseaseNames[i];
-        addSelectOption(diseaseSelect, diseaseName);
+        addSelectOption(diseaseSelect, diseaseNames[i]);
     }
 
     // second, build the pairing strategy list
     var samplerSelect = document.getElementById("samplerSelect");
     var samplerNames = Object.keys(samplers).sort(function (a, b) { return a.order - b.order; });
     for (var i = 0, count = samplerNames.length; i < count; ++i) {
-        var samplerName = samplerNames[i];
-        if (samplers[samplerName].hasOwnProperty("order")) {
-            addSelectOption(samplerSelect, samplerName);
-        }
+        addSelectOption(samplerSelect, samplerNames[i]);
     }
 
     // set default values, do this on the UI elements so they propagate to the
@@ -35,8 +31,7 @@ var onLoad = function () {
             element.oninput();
         }
     };
-    setValue("populationWidthRange", 10);
-    setValue("populationHeightRange", 10);
+    setValue("populationDimensionRange", 10);
     setValue("eventRateRange", 2.0);
     setValue("diseaseSelect", "Perfect");
     setValue("samplerSelect", "Random");
@@ -53,11 +48,14 @@ var onLoad = function () {
 
 var synchUi = function () {
     if (loaded == true) {
-        populationWidth = new Number (document.getElementById("populationWidthRange").value);
-        populationHeight = new Number (document.getElementById("populationHeightRange").value);
-        populationSize = populationWidth * populationHeight;
-        eventRate = new Number (document.getElementById("eventRateRange").value);
-        eventsPerDiem = Math.floor(((populationSize * eventRate) / 7.0) + 0.5);
+        populationDimension = new Number (document.getElementById("populationDimensionRange").value);
+        populationSize = populationDimension * populationDimension;
+
+        // each event affects two atoms, so we divide by two to make sure the 
+        // average rate works out over time
+        eventRatePerWeek = new Number (document.getElementById("eventRateRange").value);
+        eventsPerDiem = Math.floor(((populationSize * (eventRatePerWeek / 2.0)) / 7.0) + 0.5);
+        console.log("PupulationSize: " + populationSize + ", EventsPerDiem: " + eventsPerDiem);
 
         disease = diseases[document.getElementById("diseaseSelect").value];
 
@@ -73,17 +71,17 @@ var synchUi = function () {
             filters.push(filterUseProphylactic(useRate, efficacy, 0.95, 0.0, blendBias));
         }
 
-        sampler = samplers.make(document.getElementById("samplerSelect").value);
-        main();
+        // set up the sampler
+        sampler = samplers[document.getElementById("samplerSelect").value].sampler;
+
+        // and initialize the simulator
+        init();
+        document.getElementById("runButton").value = "Run";
     }
 }
 
-var populationWidthRangeInput = function (range) {
-    document.getElementById("populationWidthDisplay").innerHTML = range.value;
-}
-
-var populationHeightRangeInput = function (range) {
-    document.getElementById("populationHeightDisplay").innerHTML = range.value;
+var populationDimensionRangeInput = function (range) {
+    document.getElementById("populationDimensionDisplay").innerHTML = range.value;
 }
 
 var eventRateRangeInput = function (range) {
@@ -106,3 +104,18 @@ var animatePairsCheckboxChanged = function (checkbox) {
     animatePairs = checkbox.checked;
 }
 
+var runButtonClicked = function (button) {
+    document.getElementById("chart").innerHTML = "";
+    button.value = toggleRun() ? "Run" : "Pause";
+}
+
+var simulatorFinished = function () {
+    document.getElementById("runButton").value = "Reset";
+
+    var plot = new Plot();
+    plot.tag = "chart";
+    plot.title = "Infected and Infectious by Day";
+    plot.xAxisTitle = "Day";
+    plot.yAxisTitle = "Infected";
+    plot.fromGraphDataArray([infectiousByDay, infectedByDay]);
+}

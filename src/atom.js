@@ -8,8 +8,8 @@ var atomPrototype = function () {
 
     a.map = function () {
         return {
-            x: this.id % populationWidth,
-            y: Math.floor(this.id / populationWidth)
+            x: this.id % populationDimension,
+            y: Math.floor(this.id / populationDimension)
         };
     };
 

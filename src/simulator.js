@@ -19,12 +19,15 @@ var borderColorHighlight = "#FFFF00";
 var borderColorActive = "#808080";
 
 // the population
-var populationWidth = 8;
-var populationHeight = 8;
-var populationSize = populationWidth * populationHeight;
+var populationDimension;
+var populationSize;
 var population;
 var infectiousCount = 0;
 var infectedCount = 0;
+
+// the stats to plot at the end of a run
+var infectiousByDay = [];
+var infectedByDay = [];
 
 // the clock
 var clock;
@@ -68,6 +71,8 @@ var createPopulation = function () {
     var atom = population[randomIndex];
     atom.setState (disease.INFECTED, null);
     infectiousCount = infectedCount = 1;
+    infectiousByDay = [];
+    infectedByDay = [];
 };
 
 var conductEvent = function () {
@@ -110,6 +115,7 @@ var conductEvent = function () {
 var allInfected = function () {
     lastAtomA.link.style.stroke = borderColorActive;
     lastAtomB.link.style.stroke = borderColorActive;
+    simulatorFinished();
 }
 
 var startNewDay = function () {
@@ -154,6 +160,10 @@ var startNewDay = function () {
                 break;
         }
     }
+
+    // accumulate the stats
+    infectedByDay.push({ x: day, y: infectedCount });
+    infectiousByDay.push({ x: day, y: infectiousCount });
 }
 
 var tick = function () {
@@ -171,7 +181,7 @@ var tick = function () {
 
             // conduct an event and loop back @ 30Hz
             conductEvent();
-            setTimeout(tick, animatePairs ? 33 : 1);
+            setTimeout(tick, animatePairs ? 50 : 1);
         } else {
             allInfected ();
             paused = true;
@@ -180,33 +190,16 @@ var tick = function () {
     clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + ")";
 }
 
-var click = function () {
-    // pause and resume animation
-    if (paused) {
-        if ((infectiousCount == 0) || (infectedCount == populationSize)) {
-			main ();
-		} else {
-			paused = false;
-			tick ();
-		}
-    } else {
-        paused = true;
-    }
-}
-
 var makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
-    var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\" onclick=\"click()\">";
+    var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\">";
     svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
 
     // compute the placement parameters
     var blockSize = 0.75;
-    var horizontalSpacing = 2.0 / (populationWidth + 1);
-    var horizontalSize = horizontalSpacing * blockSize;
-    var horizontalOffset = -horizontalSize / 2.0;
-    var verticalSpacing = 2.0 / (populationHeight + 1);
-    var verticalSize = verticalSpacing * blockSize;
-    var verticalOffset = -verticalSize / 2.0;
+    var spacing = 2.0 / (populationDimension + 1);
+    var size = spacing * blockSize;
+    var offset = -size / 2.0;
 
     // loop over the whole population to place each individual in the world
     for (var id = 0; id < populationSize; ++id) {
@@ -215,18 +208,18 @@ var makeSvg = function () {
 
         // compute the position of the block
         var xy = atom.map();
-        var x = -1 + ((xy.x + 1) * horizontalSpacing) + horizontalOffset;
-        var y = -1 + ((xy.y + 1) * verticalSpacing) + verticalOffset;
+        var x = -1 + ((xy.x + 1) * spacing) + offset;
+        var y = -1 + ((xy.y + 1) * spacing) + offset;
 
         // loop over the filters
         for (var i = 0, count = filters.length; i < count ; ++i) {
-            svg += filters[i].render(atom, x, y, horizontalSize, verticalSize);
+            svg += filters[i].render(atom, x, y, size, size);
         }
     }
     svg += "</g>";
 
     // add the clock
-    svg += "<text id=\"clockDisplay\" x=\"-1\" y=\"-1\" font-family=\"Verdana\" font-size=\"0.075\" fill=\"#404040\">Click to start</text>";
+    svg += "<text id=\"clockDisplay\" x=\"-1\" y=\"-1\" font-family=\"Verdana\" font-size=\"0.075\" fill=\"#404040\">Ready</text>";
 
     // close the SVG
     svg += "</svg>";
@@ -249,7 +242,22 @@ var linkSvg = function () {
     lastAtomB = lastAtomA;
 }
 
-var main = function () {
+var toggleRun = function () {
+    // pause and resume animation
+    if (paused) {
+        if ((infectiousCount == 0) || (infectedCount == populationSize)) {
+            init();
+        } else {
+            paused = false;
+            tick();
+        }
+    } else {
+        paused = true;
+    }
+    return paused;
+}
+
+var init = function () {
     // reset the clock
     clock = day = 0;
     paused = true;
