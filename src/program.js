@@ -23,8 +23,8 @@ var populationWidth = 8;
 var populationHeight = 8;
 var populationSize = populationWidth * populationHeight;
 var population;
+var infectiousCount = 0;
 var infectedCount = 0;
-var totalInfectedCount = 0;
 
 // the clock
 var clock;
@@ -67,7 +67,7 @@ var createPopulation = function () {
     var randomIndex = Math.floor (Math.random () * populationSize);
     var atom = population[randomIndex];
     atom.setState (disease.INFECTED, null);
-    infectedCount = totalInfectedCount = 1;
+    infectiousCount = infectedCount = 1;
 };
 
 var conductEvent = function () {
@@ -98,8 +98,8 @@ var conductEvent = function () {
     if (transmit) {
         atomA.infectBy (atomB);
         atomB.infectBy (atomA);
+        ++infectiousCount;
         ++infectedCount;
-        ++totalInfectedCount;
     }
 
     // save this information for the next event
@@ -134,7 +134,7 @@ var startNewDay = function () {
                 if (Math.random() < probability) {
                     // a clinical individual might get better, and become convalescent
                     if (disease.CONVALESCENT.recurrence == 0) {
-                        --infectedCount;
+                        --infectiousCount;
                     }
                     atom.setState (disease.CONVALESCENT, null);
                 }
@@ -144,11 +144,10 @@ var startNewDay = function () {
                 var probability = ((day - atom.day ()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // a convalescent individual might return to healthy
-                    --totalInfectedCount;
+                    --infectedCount;
                     atom.setState (disease.HEALTHY, null);
                 } else if (Math.random() < atom.state.recurrence) {
                     // or a convalescent individual might have a recurrence
-                    ++infectedCount;
                     atom.setState (disease.CLINICAL, null);
                 }
             }
@@ -159,7 +158,7 @@ var startNewDay = function () {
 
 var tick = function () {
     if (! paused) {
-        if ((infectedCount > 0) && (totalInfectedCount < populationSize)) {
+        if ((infectiousCount > 0) && (infectedCount < populationSize)) {
             // see if it's a new day
             if ((clock % eventsPerDiem) == 0) {
                 // do things that happen on a per day basis - we do this here to
@@ -178,13 +177,13 @@ var tick = function () {
             paused = true;
         }
     }
-    clockDisplay.textContent = "Day " + day + " (" + clock + ", " + totalInfectedCount + "/" + populationSize + ")";
+    clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + ")";
 }
 
 var click = function () {
     // pause and resume animation
     if (paused) {
-        if ((infectedCount == 0) || (totalInfectedCount == populationSize)) {
+        if ((infectiousCount == 0) || (infectedCount == populationSize)) {
 			main ();
 		} else {
 			paused = false;

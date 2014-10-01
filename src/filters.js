@@ -48,10 +48,10 @@ var filterCanTransmit = function (states) {
     return f;
 };
 
-var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy, userProbability, nonUserProbability, blendBias) {
+var filterUseProphylactic = function (useRate, efficacy, userProbability, nonUserProbability, blendBias) {
     var f = Object.create(null);
     f.init = function (a) {
-        a.useProphylactic = (Math.random() < useProphylacticRate) ? userProbability : nonUserProbability;
+        a.useProphylactic = (Math.random() < useRate) ? userProbability : nonUserProbability;
     };
 
     f.test = function (a, b) {
@@ -65,7 +65,7 @@ var filterUseProphylactic = function (useProphylacticRate, prophylacticEfficacy,
         var useProbability = ((a.useProphylactic * blendBias) + (b.useProphylactic * (1.0 - blendBias)));
 
         // return true if no prophylactic is employed, or if the prophylactic fails
-        return ((Math.random() > useProbability) || (Math.random() >= prophylacticEfficacy));
+        return ((Math.random() > useProbability) || (Math.random() >= efficacy));
     };
 
     f.render = function (atom, x, y, width, height) {

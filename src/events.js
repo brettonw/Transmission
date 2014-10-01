@@ -37,9 +37,12 @@ var onLoad = function () {
     };
     setValue("populationWidthRange", 10);
     setValue("populationHeightRange", 10);
+    setValue("eventRateRange", 2.0);
     setValue("diseaseSelect", "Perfect");
     setValue("samplerSelect", "Random");
-    setValue("eventRateRange", 2.0);
+    setValue("prophylacticUseRateRange", 0);
+    setValue("prophylacticEfficacyRange", 95);
+    setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
 
     loaded = true;
@@ -50,64 +53,56 @@ var onLoad = function () {
 
 var synchUi = function () {
     if (loaded == true) {
+        populationWidth = new Number (document.getElementById("populationWidthRange").value);
+        populationHeight = new Number (document.getElementById("populationHeightRange").value);
+        populationSize = populationWidth * populationHeight;
+        eventRate = new Number (document.getElementById("eventRateRange").value);
+        eventsPerDiem = Math.floor(((populationSize * eventRate) / 7.0) + 0.5);
+
+        disease = diseases[document.getElementById("diseaseSelect").value];
+
+        // clear out the filters
+        filters = [];
+        filters.push(filterCanTransmit(disease));
+
+        // configure prophylactics
+        var useRate = new Number (document.getElementById("prophylacticUseRateRange").value) / 100.0;
+        if (useRate > 0) {
+            var efficacy = new Number (document.getElementById("prophylacticEfficacyRange").value) / 100.0;
+            var blendBias = new Number (document.getElementById("prophylacticBlendBiasRange").value) / 100.0;
+            filters.push(filterUseProphylactic(useRate, efficacy, 0.95, 0.0, blendBias));
+        }
+
+        sampler = samplers.make(document.getElementById("samplerSelect").value);
         main();
     }
-}
-
-var updatePopulationSize = function () {
-    populationSize = populationWidth * populationHeight;
-    eventsPerDiem = Math.floor(((populationSize * eventRate) / 7.0) + 0.5);
-    synchUi();
-}
-
-var populationWidthRangeChanged = function (range) {
-    populationWidth = new Number (range.value);
-    updatePopulationSize ();
 }
 
 var populationWidthRangeInput = function (range) {
     document.getElementById("populationWidthDisplay").innerHTML = range.value;
 }
 
-var populationHeightRangeChanged = function (range) {
-    populationHeight = new Number (range.value);
-    updatePopulationSize ();
-}
-
 var populationHeightRangeInput = function (range) {
     document.getElementById("populationHeightDisplay").innerHTML = range.value;
-}
-
-var animatePairsCheckboxChanged = function (checkbox) {
-    animatePairs = checkbox.checked;
-}
-
-var eventRateRangeChanged = function (range) {
-    eventRate = new Number (range.value);
-    updatePopulationSize ();
 }
 
 var eventRateRangeInput = function (range) {
     document.getElementById("eventRateDisplay").innerHTML = (new Number (range.value)).toPrecision (3);
 }
 
-var diseaseSelectChanged = function (select) {
-    // change the disease
-    disease = diseases[select.value];
-
-    // clear out the filters
-    filters = [];
-    filters.push(filterCanTransmit(disease));
-
-    // XXX temporarily use prophylactics
-    filters.push(filterUseProphylactic(0.5, 0.95, 0.95, 0.25, 0.66));
-
-    synchUi();
+var prophylacticUseRateRangeInput = function (range) {
+    document.getElementById("prophylacticUseRateDisplay").innerHTML = range.value + "%";
 }
 
-var samplerSelectChanged = function (select) {
-    // change the sampler
-    sampler = samplers.make(select.value);
-
-    synchUi();
+var prophylacticEfficacyRangeInput = function (range) {
+    document.getElementById("prophylacticEfficacyDisplay").innerHTML = range.value + "%";
 }
+
+var prophylacticBlendBiasRangeInput = function (range) {
+    document.getElementById("prophylacticBlendBiasDisplay").innerHTML = range.value + "%";
+}
+
+var animatePairsCheckboxChanged = function (checkbox) {
+    animatePairs = checkbox.checked;
+}
+

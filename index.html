@@ -20,21 +20,28 @@
                             <table cellpadding="0" cellspacing="0">
                                 <tr style="height:15px;" />
                                 <tr><td>Population Width:</td><td style="float:right;" id="populationWidthDisplay">10</td></tr>
-                                <tr><td colspan="2"><input type="range" id="populationWidthRange" min="5" max="25" step="1" style="float:right;width:90%;" onchange="populationWidthRangeChanged(this);" oninput="populationWidthRangeInput(this);" /></td></tr>
+                                <tr><td colspan="2"><input type="range" id="populationWidthRange" min="5" max="25" step="1" style="float:right;width:90%;" onchange="synchUi();" oninput="populationWidthRangeInput(this);" /></td></tr>
                                 <tr style="height:15px;" />
                                 <tr><td>Population Height:</td><td style="float:right;" id="populationHeightDisplay">10</td></tr>
-                                <tr><td colspan="2"><input type="range" id="populationHeightRange" min="5" max="25" step="1" style="float:right;width:90%;" onchange="populationHeightRangeChanged(this);" oninput="populationHeightRangeInput(this);" /></td></tr>
+                                <tr><td colspan="2"><input type="range" id="populationHeightRange" min="5" max="25" step="1" style="float:right;width:90%;" onchange="synchUi();" oninput="populationHeightRangeInput(this);" /></td></tr>
                                 <tr style="height:15px;" />
                                 <tr><td>Avg Events per Week:</td><td style="float:right;" id="eventRateDisplay">1.00</td></tr>
-                                <tr><td colspan="2"><input type="range" id="eventRateRange" min="1.0" max="10" step="0.5" style="float:right;width:90%;" onchange="eventRateRangeChanged(this);" oninput="eventRateRangeInput(this);" /></td></tr>
+                                <tr><td colspan="2"><input type="range" id="eventRateRange" min="1.0" max="10" step="0.5" style="float:right;width:90%;" onchange="synchUi();" oninput="eventRateRangeInput(this);" /></td></tr>
                                 <tr style="height:15px;" />
                                 <tr><td colspan="2">Disease:</td></tr>
-                                <tr><td colspan="2"><select id="diseaseSelect" onchange="diseaseSelectChanged(this);" style="width:100%;"></select></td></tr>
+                                <tr><td colspan="2"><select id="diseaseSelect" onchange="synchUi();" style="width:100%;"></select></td></tr>
                                 <tr style="height:15px;" />
                                 <tr><td colspan="2">Pairing Strategy:</td></tr>
-                                <tr><td colspan="2"><select id="samplerSelect" onchange="samplerSelectChanged(this);" style="width:100%;"></select></td></tr>
+                                <tr><td colspan="2"><select id="samplerSelect" onchange="synchUi();" style="width:100%;"></select></td></tr>
                                 <tr style="height:15px;" />
-                                <tr><td>Prophylactic:</td><td style="float:right;">XXX</td></tr>
+                                <tr><td>Prophylactic Use Rate:</td><td style="float:right;" id="prophylacticUseRateDisplay">0</td></tr>
+                                <tr><td colspan="2"><input type="range" id="prophylacticUseRateRange" min="0" max="100" step="10" style="float:right;width:90%;" onchange="synchUi();" oninput="prophylacticUseRateRangeInput(this);" /></td></tr>
+                                <tr style="height:15px;" />
+                                <tr><td>Prophylactic Efficacy:</td><td style="float:right;" id="prophylacticEfficacyDisplay">0</td></tr>
+                                <tr><td colspan="2"><input type="range" id="prophylacticEfficacyRange" min="0" max="100" step="5" style="float:right;width:90%;" onchange="synchUi();" oninput="prophylacticEfficacyRangeInput(this);" /></td></tr>
+                                <tr style="height:15px;" />
+                                <tr><td>Prophylactic Blend Bias:</td><td style="float:right;" id="prophylacticBlendBiasDisplay">50</td></tr>
+                                <tr><td colspan="2"><input type="range" id="prophylacticBlendBiasRange" min="0" max="100" step="10" style="float:right;width:90%;" onchange="synchUi();" oninput="prophylacticBlendBiasRangeInput(this);" /></td></tr>
                                 <tr style="height:15px;" />
                                 <tr><td>Animate Pairs:</td><td style="float:right;"><input type="checkbox" id="animatePairsCheckbox" onchange="animatePairsCheckboxChanged(this);" /></td></tr>
                             </table>
