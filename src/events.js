@@ -51,11 +51,11 @@ var synchUi = function () {
         populationDimension = new Number (document.getElementById("populationDimensionRange").value);
         populationSize = populationDimension * populationDimension;
 
-        // each event affects two atoms, so we divide by two to make sure the 
+        // each event affects two atoms, so we divide by two to make sure the
         // average rate works out over time
         eventRatePerWeek = new Number (document.getElementById("eventRateRange").value);
         eventsPerDiem = Math.floor(((populationSize * (eventRatePerWeek / 2.0)) / 7.0) + 0.5);
-        console.log("PupulationSize: " + populationSize + ", EventsPerDiem: " + eventsPerDiem);
+        console.log("PopulationSize: " + populationSize + ", EventsPerDiem: " + eventsPerDiem);
 
         disease = diseases[document.getElementById("diseaseSelect").value];
 
@@ -114,7 +114,7 @@ var simulatorFinished = function () {
 
     var plot = new Plot();
     plot.tag = "chart";
-    plot.title = "Infected and Infectious by Day";
+    plot.title = "Infected Count vs. Day";
     plot.xAxisTitle = "Day";
     plot.yAxisTitle = "Infected";
     plot.fromGraphDataArray([infectiousByDay, infectedByDay]);
