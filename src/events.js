@@ -111,11 +111,6 @@ var runButtonClicked = function (button) {
 
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
-
-    var plot = new Plot();
-    plot.tag = "chart";
-    plot.title = "Infected Count vs. Day";
-    plot.xAxisTitle = "Day";
-    plot.yAxisTitle = "Infected";
-    plot.fromGraphDataArray([infectiousByDay, infectedByDay]);
+    var graphSvg = GraphSvg.plotMultiple("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
+    document.getElementById("runButton").innerHTML = graphSvg;
 }
