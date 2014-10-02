@@ -10,7 +10,8 @@ div.wrapper {
     position:           fixed;
     top:                20px;
     left:               50%;
-    transform:          translate(-50%, 0);
+    -webkit-transform:  translate(-50%, 0%);
+    transform:          translate(-50%, 0%);
     background-color:   #aaaaaa;
     border:             solid;
     border-width:       3px;
@@ -75,6 +76,7 @@ div.chart {
     position:           fixed;
     top:                640px;
     left:               50%;
+    -webkit-transform:  translate(-50%, 0);
     transform:          translate(-50%, 0);
 
     background-color:   #e4e4e4;
