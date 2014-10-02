@@ -80,15 +80,24 @@ div.chart {
     transform:          translate(-50%, 0);
 
     background-color:   #e4e4e4;
-    width:              600px;
+    width:              480px;
     height:             320px;
     padding:            0;
     margin:             0;
-    overflow:           hidden;
 
     border:             solid;
     border-width:       3px;
     border-color:       white;
+}
+
+div.svg-div {
+    background-color:   #FF0000;
+    width:              480px;
+    height:             320px;
+    padding:            0;
+    margin:             0;
+    overflow:           hidden;
+    display:            block;
 }
 
 svg {
@@ -97,5 +106,4 @@ svg {
     height:             100%;
     padding:            0;
     margin:             0;
-
 }
