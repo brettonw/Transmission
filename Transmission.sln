@@ -11,11 +11,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transmission", "Transmissio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FF450CC0-7975-4A3C-8F1D-84BCC9A22300}"
 	ProjectSection(SolutionItems) = preProject
+		src\atom.js = src\atom.js
 		src\diseases.js = src\diseases.js
 		src\events.js = src\events.js
 		src\filters.js = src\filters.js
-		src\program.js = src\program.js
 		src\samplers.js = src\samplers.js
+		src\simulator.js = src\simulator.js
 	EndProjectSection
 EndProject
 Global
