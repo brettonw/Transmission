@@ -14,6 +14,7 @@
 // events model transmission rates, affected by the various strategies
 
 var animatePairs = false;
+var liveUpdateGraph = false;
 
 var borderColorHighlight = "#FFFF00";
 var borderColorActive = "#808080";
@@ -164,6 +165,11 @@ var startNewDay = function () {
     // accumulate the stats
     infectedByDay.push({ x: day, y: infectedCount });
     infectiousByDay.push({ x: day, y: infectiousCount });
+    if (liveUpdateGraph && (day > 2) && (infectedCount > 2))  {
+        var graphSvg = GraphSvg.plotMultiple("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
+        document.getElementById("chart").innerHTML = graphSvg;
+    }
+
 }
 
 var tick = function () {

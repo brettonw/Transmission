@@ -39,6 +39,7 @@ var onLoad = function () {
     setValue("prophylacticEfficacyRange", 95);
     setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
+    document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = false;
 
     loaded = true;
 
@@ -102,6 +103,10 @@ var prophylacticBlendBiasRangeInput = function (range) {
 
 var animatePairsCheckboxChanged = function (checkbox) {
     animatePairs = checkbox.checked;
+}
+
+var liveUpdateGraphCheckboxChanged = function (checkbox) {
+    liveUpdateGraph = checkbox.checked;
 }
 
 var runButtonClicked = function (button) {
