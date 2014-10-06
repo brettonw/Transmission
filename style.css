@@ -1,103 +1,55 @@
-html, body {
+html {
+    width:              100%;
+    //height:             1260px;
+    padding:            0px;
+}
+
+body {
     background-color:   #304080;
     width:              100%;
-    height:             1260px;
+    height:             100%;
     padding:            0px;
+}
+
+div.top-wrapper {
+    margin-left:        auto;
+    margin-right:       auto;
+    width:              930px;
+}
+
+div.exterior-wrapper {
     margin:             0px;
-}
-
-div.wrapper {
-    position:           absolute;
-    top:                20px;
-    left:               50%;
-    -webkit-transform:  translate(-50%, 0%);
-    transform:          translate(-50%, 0%);
-    background-color:   #aaaaaa;
-    border:             solid;
-    border-width:       3px;
-    border-color:       white;
-}
-
-table.centered {
-    background-color:   #0000FF;
-    width:              800px;
-    height:             600px;
-    border:             none;
-    padding:            0;
-    margin:             0;
-    overflow:           hidden;
-    display:            block;
-}
-
-td.controls {
     background-color:   white;
-    width:              200px;
-    height:             600px;
+    padding:            3px;
+    display:            inline-block;
     vertical-align:     top;
-    margin-left: auto;
-    margin-right:auto;
 }
 
-div.boxed {
+div.interior-wrapper {
+    border:             solid;
+    border-width:       1px;
+    border-color:       black;
+}
+
+div#display {
+    width:              100%;
+    height:             100%;
+}
+
+div#chart {
     background-color:   white;
-    width:              auto;
-    height:             588px;
-    border:             solid;
-    border-width:       1px;
-    border-color:       black;
-    margin-right:       3px;
-    font-family:        sans-serif;
-    font-size:          12px;
-    font-weight:        normal;
-    padding:            5px;
-}
-
-td.display {
-    background-color:   #FF0000;
-    width:              600px;
-    height:             600px;
-}
-
-div.display {
-    background-color:   #FF0000;
-    width:              598px;
-    height:             598px;
-    padding:            0;
-    margin:             0;
-    overflow:           hidden;
-    display:            block;
-
-    border:             solid;
-    border-width:       1px;
-    border-color:       black;
-}
-
-div.chart {
-    position:           absolute;
-    top:                640px;
-    left:               50%;
-    -webkit-transform:  translate(-50%, 0);
-    transform:          translate(-50%, 0);
-
-    background-color:   #e4e4e4;
-    width:              480px;
-    height:             320px;
-    padding:            0;
-    margin:             0;
-
-    border:             solid;
-    border-width:       3px;
-    border-color:       white;
-}
-
-div.svg-div {
-    background-color:   #FF0000;
     width:              100%;
     height:             100%;
     padding:            0;
     margin:             0;
-    overflow:           hidden;
-    display:            block;
+}
+
+div#tree {
+    background-color:   white;
+    width:              100%;
+    height:             100%;
+    padding:            0;
+    margin:             0;
 }
 
 svg {
@@ -107,3 +59,4 @@ svg {
     padding:            0;
     margin:             0;
 }
+

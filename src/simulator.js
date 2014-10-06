@@ -193,7 +193,7 @@ var tick = function () {
             paused = true;
         }
     }
-    clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + ")";
+    clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + " = " + ((100.0 * infectedCount) / populationSize).toFixed(1) + "%)";
 }
 
 var makeSvg = function () {
