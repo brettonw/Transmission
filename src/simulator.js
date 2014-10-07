@@ -40,14 +40,6 @@ var eventsPerDiem;
 
 var lastAtomA, lastAtomB;
 
-// set up prophylactics
-/*
-var useProphylacticRate = 0.2;
-var prophylacticEfficacy = 0.8;
-//filters.push(filterUseProphylactic(useProphylacticRate, prophylacticEfficacy));
-filters.push(filterUseProphylactic(0, 0));
-*/
-
 var createPopulation = function () {
     population = [];
 
@@ -166,8 +158,8 @@ var startNewDay = function () {
     infectedByDay.push({ x: day, y: infectedCount });
     infectiousByDay.push({ x: day, y: infectiousCount });
     if (liveUpdateGraph && (day > 2) && (infectedCount > 2))  {
-        var graphSvg = GraphSvg.plotMultiple("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
-        document.getElementById("chart").innerHTML = graphSvg;
+        var svg = PlotSvg.multipleLine("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
+        document.getElementById("chart").innerHTML = svg;
     }
 
 }
