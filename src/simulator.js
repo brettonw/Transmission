@@ -106,8 +106,50 @@ var conductEvent = function () {
 }
 
 var allInfected = function () {
+    // clear the final highlight
     lastAtomA.link.style.stroke = borderColorActive;
     lastAtomB.link.style.stroke = borderColorActive;
+
+    var getInfectionEvent = function (atom) {
+        if ((atom.events.length > 0) && 
+            (atom.events[0].state.name == "INFECTED") &&
+            ("by" in atom.events[0])) {
+            return atom.events[0];
+        }
+        return null;
+    };
+
+    // sort the population by the infection date
+    population.sort(function (a, b) {
+        var aEvent = getInfectionEvent(a);
+        var bEvent = getInfectionEvent(b);
+        if (aEvent != null) {
+            if (bEvent != null) {
+                return aEvent.day - bEvent.day;
+            } else {
+                return 1;
+            }
+        } else if (bEvent != null) {
+            // already know that a is null
+            return -1;
+        } else {
+            return 0;
+        }
+    });
+
+    // sweep the population to build the infection tree
+    for (var i = 0, count = population.length; i < count; ++i) {
+        var atom = population[i];
+        var infectionEvent = getInfectionEvent(atom);
+        atom.parentId = (infectionEvent != null) ? infectionEvent.by.id : null;
+    }
+
+    // get the root of the tree
+    var root = TreeSvg.extractTreeFromParentField(population, "id", "parentId");
+    var tree = TreeSvg.sweepAndCount(root);
+
+
+    // an event to say we're done
     simulatorFinished();
 }
 

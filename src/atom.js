@@ -19,7 +19,7 @@ var atomPrototype = function () {
 
     a.setState = function (state, params) {
         this.state = state;
-        var event = { day: day };
+        var event = { "day": day, "state":state };
         if (params != null) {
             for (var param in params) {
                 if (params.hasOwnProperty (param)) {

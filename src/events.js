@@ -31,6 +31,7 @@ var onLoad = function () {
             element.oninput();
         }
     };
+
     setValue("populationDimensionRange", 10);
     setValue("eventRateRange", 2.0);
     setValue("diseaseSelect", "Perfect");
@@ -116,6 +117,6 @@ var runButtonClicked = function (button) {
 
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
-    var svg = PlotSvg.plotMultiple("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
+    var svg = PlotSvg.multipleLine("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
     document.getElementById("chart").innerHTML = svg;
 }
