@@ -26,6 +26,7 @@ var TreeSvg = function () {
             if (parentId != null) {
                 var parentContainer = getContainerById(parentId, null);
                 parentContainer.children.push(container);
+                container.parent = parentContainer;
             } else {
                 root = container;
             }
