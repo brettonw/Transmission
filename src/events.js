@@ -32,7 +32,7 @@ var onLoad = function () {
         }
     };
 
-    setValue("populationDimensionRange", 10);
+    setValue("populationDimensionRange", 5);
     setValue("eventRateRange", 2.0);
     setValue("diseaseSelect", "Perfect");
     setValue("samplerSelect", "Random");
@@ -41,6 +41,7 @@ var onLoad = function () {
     setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
     document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = false;
+    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = false;
 
     loaded = true;
 
@@ -110,6 +111,10 @@ var liveUpdateGraphCheckboxChanged = function (checkbox) {
     liveUpdateGraph = checkbox.checked;
 }
 
+var liveUpdateTreeCheckboxChanged = function (checkbox) {
+    liveUpdateTree = checkbox.checked;
+}
+
 var runButtonClicked = function (button) {
     document.getElementById("chart").innerHTML = "";
     button.value = toggleRun() ? "Run" : "Pause";
@@ -117,6 +122,6 @@ var runButtonClicked = function (button) {
 
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
-    var svg = PlotSvg.multipleLine("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
-    document.getElementById("chart").innerHTML = svg;
+    makeGraph();
+    makeTree();
 }
