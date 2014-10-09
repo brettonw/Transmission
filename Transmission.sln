@@ -17,7 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FF450CC0-797
 		src\filters.js = src\filters.js
 		src\samplers.js = src\samplers.js
 		src\simulator.js = src\simulator.js
-		src\tree-svg.js = src\tree-svg.js
 	EndProjectSection
 EndProject
 Global
