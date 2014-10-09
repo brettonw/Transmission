@@ -154,9 +154,9 @@ var makeTree = function () {
     }
 
     // get the root of the tree
-    var roots = TreeSvg.extractTreeFromParentField(data, "id", "parentId");
-    var tree = TreeSvg.sweepAndCount(roots[0]);
-    var svg = TreeSvg.render(tree);
+    var root = TreeSvg.extractTreeFromParentField(data, "id", "parentId");
+    //var tree = TreeSvg.sweepAndCount(root);
+    var svg = TreeSvg.render(root);
     document.getElementById("tree").innerHTML = svg;
 };
 
