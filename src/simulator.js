@@ -214,7 +214,7 @@ var startNewDay = function () {
     // accumulate the stats
     infectedByDay.push({ x: day, y: infectedCount });
     infectiousByDay.push({ x: day, y: infectiousCount });
-    if (liveUpdateGraph && (day > 2) && (infectedCount > 2)) {
+    if (liveUpdateGraph) {
         makeGraph();
     }
     if (liveUpdateTree) {

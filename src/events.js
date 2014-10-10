@@ -116,7 +116,10 @@ var liveUpdateTreeCheckboxChanged = function (checkbox) {
 }
 
 var runButtonClicked = function (button) {
-    document.getElementById("chart").innerHTML = "";
+    if (button.value == "Reset") {
+        document.getElementById("chart").innerHTML = "";
+        document.getElementById("tree").innerHTML = "";
+    }
     button.value = toggleRun() ? "Run" : "Pause";
 }
 
