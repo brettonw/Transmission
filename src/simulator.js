@@ -155,7 +155,8 @@ var makeTree = function () {
 
     // get the root of the tree
     var root = TreeSvg.extractTreeFromParentField(data, "id", "parentId");
-    var svg = TreeSvg.render(root);
+    var helper = { getTitle: function (node) { return node.id; }, getColor: function (node) { return node.state.color; } };
+    var svg = TreeSvg.renderWithHelper(root, helper);
     document.getElementById("tree").innerHTML = svg;
 };
 
@@ -249,7 +250,7 @@ var tick = function () {
 var makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
     var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\">";
-    svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
+    //svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
 
     // compute the placement parameters
     var blockSize = 0.75;
@@ -272,7 +273,7 @@ var makeSvg = function () {
             svg += filters[i].render(atom, x, y, size, size);
         }
     }
-    svg += "</g>";
+    //svg += "</g>";
 
     // add the clock
     svg += "<text id=\"clockDisplay\" x=\"-1\" y=\"-1\" font-family=\"Verdana\" font-size=\"0.075\" fill=\"#404040\">Ready</text>";

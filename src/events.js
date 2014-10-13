@@ -40,8 +40,8 @@ var onLoad = function () {
     setValue("prophylacticEfficacyRange", 95);
     setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
-    document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = false;
-    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = false;
+    document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = true;
+    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = true;
 
     loaded = true;
 
