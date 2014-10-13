@@ -155,7 +155,9 @@ var makeTree = function () {
 
     // get the root of the tree
     var root = TreeSvg.extractTreeFromParentField(data, "id", "parentId");
-    var helper = { getTitle: function (node) { return node.id; }, getColor: function (node) { return node.state.color; } };
+    var helper = TreeSvg.getDefaultHelper ();
+    helper.getId = function (node) { return node.id; };
+    helper.getColor = function (node) { return node.state.color; };
     var svg = TreeSvg.renderWithHelper(root, helper);
     document.getElementById("tree").innerHTML = svg;
 };
