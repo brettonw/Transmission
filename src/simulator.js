@@ -225,7 +225,7 @@ var startNewDay = function () {
     }
 };
 
-var tick = function () {
+var tick = function (keepTicking) {
     if (!paused) {
         if ((infectiousCount > 0) && (infectedCount < populationSize)) {
             // see if it's a new day
@@ -240,7 +240,9 @@ var tick = function () {
 
             // conduct an event and loop back @ 30Hz
             conductEvent();
-            setTimeout(tick, animatePairs ? 50 : 1);
+            if (keepTicking) {
+                setTimeout(function () { tick(true); }, animatePairs ? 50 : 1);
+            }
         } else {
             allInfected();
             paused = true;
@@ -308,10 +310,26 @@ var toggleRun = function () {
             init();
         } else {
             paused = false;
-            tick();
+            tick(true);
         }
     } else {
         paused = true;
+    }
+    return paused;
+};
+
+var singleStep = function () {
+    // pause and resume animation
+    if (paused) {
+        if ((infectiousCount == 0) || (infectedCount == populationSize)) {
+            // do nothing
+        } else {
+            paused = false;
+            tick(false);
+            paused = true;
+        }
+    } else {
+        // do nothing
     }
     return paused;
 };

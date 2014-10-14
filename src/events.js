@@ -123,6 +123,10 @@ var runButtonClicked = function (button) {
     button.value = toggleRun() ? "Run" : "Pause";
 }
 
+var stepButtonClicked = function (button) {
+    singleStep();
+}
+
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
     makeGraph();
