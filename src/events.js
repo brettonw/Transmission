@@ -80,6 +80,7 @@ var synchUi = function () {
         // and initialize the simulator
         init();
         document.getElementById("runButton").value = "Run";
+        document.getElementById("stepButton").disabled = false;
     }
 }
 
@@ -104,6 +105,7 @@ var prophylacticBlendBiasRangeInput = function (range) {
 }
 
 var animatePairsCheckboxChanged = function (checkbox) {
+    clearHighlight();
     animatePairs = checkbox.checked;
 }
 
@@ -120,15 +122,17 @@ var runButtonClicked = function (button) {
         document.getElementById("chart").innerHTML = "";
         document.getElementById("tree").innerHTML = "";
     }
-    button.value = toggleRun() ? "Run" : "Pause";
+    var running = toggleRun();
+    button.value = running ? "Run" : "Pause";
+    document.getElementById("stepButton").disabled = !running;
 }
 
 var stepButtonClicked = function (button) {
+    document.getElementById("animatePairsCheckbox").checked = animatePairs = true;
     singleStep();
 }
 
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
-    makeGraph();
-    makeTree();
+    document.getElementById("stepButton").disabled = true;
 }

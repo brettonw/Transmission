@@ -41,7 +41,7 @@ var filterCanTransmit = function (states) {
         rect += " x=\"" + x + "\" y=\"" + y + "\"";
         rect += " width=\"" + width + "\" height=\"" + height + "\"";
         rect += " fill=\"" + atom.state.color + "\"";
-        rect += " stroke=\"black\" stroke-width=\"0.005\" />"
+        rect += " stroke=\"black\" stroke-width=\"0.008\" />"
         return rect;
     }
 

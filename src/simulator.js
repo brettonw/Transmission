@@ -17,8 +17,8 @@ var animatePairs = false;
 var liveUpdateGraph = false;
 var liveUpdateTree = false;
 
-var borderColorHighlight = "#FFFF00";
-var borderColorActive = "#808080";
+var borderColorHighlight = "yellow";
+var borderColorActive = "black";
 
 // the population
 var populationDimension;
@@ -69,10 +69,16 @@ var createPopulation = function () {
     infectedByDay = [];
 };
 
+var clearHighlight = function () {
+    if (animatePairs) {
+        // clear the last event info by denoting those atoms as "active"
+        lastAtomA.link.style.stroke = borderColorActive;
+        lastAtomB.link.style.stroke = borderColorActive;
+    }
+}
+
 var conductEvent = function () {
-    // clear the last event info by denoting those atoms as "active"
-    lastAtomA.link.style.stroke = borderColorActive;
-    lastAtomB.link.style.stroke = borderColorActive;
+    clearHighlight();
 
     // randomly pair two individuals from the population
     var atomA = population[Math.floor(Math.random() * populationSize)];
@@ -163,9 +169,11 @@ var makeTree = function () {
 };
 
 var allInfected = function () {
-    // clear the final highlight
-    lastAtomA.link.style.stroke = borderColorActive;
-    lastAtomB.link.style.stroke = borderColorActive;
+    clearHighlight();
+
+    // complete the display
+    makeGraph();
+    makeTree();
 
     // an event to say we're done
     simulatorFinished();
@@ -321,13 +329,9 @@ var toggleRun = function () {
 var singleStep = function () {
     // pause and resume animation
     if (paused) {
-        if ((infectiousCount == 0) || (infectedCount == populationSize)) {
-            // do nothing
-        } else {
-            paused = false;
-            tick(false);
-            paused = true;
-        }
+        paused = false;
+        tick(false);
+        paused = true;
     } else {
         // do nothing
     }
@@ -343,4 +347,8 @@ var init = function () {
     var display = makeSvg();
     document.getElementById("display").innerHTML = display;
     linkSvg();
+
+    // complete the display
+    makeGraph();
+    makeTree();
 };
