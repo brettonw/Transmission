@@ -39,7 +39,6 @@ var onLoad = function () {
     setValue("prophylacticUseRateRange", 0);
     setValue("prophylacticEfficacyRange", 95);
     setValue("prophylacticBlendBiasRange", 60);
-    document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
     document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = true;
     document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = true;
 
@@ -79,6 +78,7 @@ var synchUi = function () {
 
         // and initialize the simulator
         init();
+        document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
         document.getElementById("runButton").value = "Run";
         document.getElementById("stepButton").disabled = false;
     }
@@ -119,8 +119,7 @@ var liveUpdateTreeCheckboxChanged = function (checkbox) {
 
 var runButtonClicked = function (button) {
     if (button.value == "Reset") {
-        document.getElementById("chart").innerHTML = "";
-        document.getElementById("tree").innerHTML = "";
+        document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
     }
     var running = toggleRun();
     button.value = running ? "Run" : "Pause";
