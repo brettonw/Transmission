@@ -118,6 +118,7 @@ var makeGraph = function () {
 };
 
 var makeTree = function () {
+
     // copy the population array, since we want to sort it
     var data = new Array(populationSize);
     for (var i = 0; i < populationSize; ++i) {
