@@ -2,7 +2,7 @@ var TreeSvg = function () {
     var ts = Object.create(null);
 
     // the rendering radius of nodes
-    var nodeRadius = 4.0;
+    var nodeRadius = 4.5;
     ts.setNodeRadius = function (r) {
         nodeRadius = r;
     };
@@ -16,10 +16,11 @@ var TreeSvg = function () {
     var edgeTension = 0.4;
 
     // "padding" values on the row lines
-    var rowPadding = 2;
+    var rowPadding = 0.5;
 
     // label drawing assistance
     var drawLabels = true;
+    var labelLength = 12;
     var TextPlacement = {
         "LEFT": -1,
         "RIGHT": 1
@@ -28,7 +29,7 @@ var TreeSvg = function () {
         "LEFT": ' style="text-anchor:end;" ',
         "RIGHT": ' style="text-anchor:start;" '
     };
-    var textPostSpacing = 0.5;
+    var textPostSpacing = 0.33;
 
     // utility function for getting the tension right on the quadratic
     // Bezier curve we'll use for the edges
@@ -192,45 +193,6 @@ var TreeSvg = function () {
             styleNames[styleName] = useCss;
         }
     };
-    // helper function to walk an array of nodes and build a tree
-    ts.extractTreeFromParentField = function (nodes, idField, parentIdField) {
-        // internal function to get a node container from the id
-        var nodesById = {};
-        var getContainerById = function (id, node) {
-            if (!(id in nodesById)) {
-                nodesById[id] = {
-                    "children": [],
-                    "expanded": true,
-                    "id":id
-                };
-            }
-            var container = nodesById[id];
-            if (node != null) {
-                container.node = node;
-            }
-            return container;
-        };
-
-        // build a hash of nodes by id, with children, filling in the children
-        // as we walk the tree. assume the nodes are sorted in the desired order
-        var root = { id: -1, node: null, parent: null, children: [] };
-        for (var i = 0, count = nodes.length; i < count; ++i) {
-            var node = nodes[i];
-            var id = node[idField];
-            var container = getContainerById(id, node);
-            var parentId = node[parentIdField];
-            if (parentId != null) {
-                var parentContainer = getContainerById(parentId, null);
-                parentContainer.children.push(container);
-                container.parent = parentContainer;
-            } else {
-                root.children.push(container);
-            }
-        }
-
-        // return the finished result
-        return (root.children.length > 1) ? root : root.children[0];
-    };
 
     // render with a helper (an adapter object that links externally defined
     // nodes to the display characteristics of the node)
@@ -372,6 +334,11 @@ var TreeSvg = function () {
                     } else {
                         svg += layout.textTransform(container, TextPlacement.LEFT) + ' ';
                     }
+
+                    // trim the title to a displayable length
+                    if (title.length > labelLength) {
+                        title = title.substring(0, labelLength - 1) + "&hellip;";
+                    }
                     svg += '>' + title + '</text>';
                 }
 
@@ -388,7 +355,7 @@ var TreeSvg = function () {
 
     ts.getDefaultHelper = function () {
         return {
-            getTitle: function (container) { return "" + id; },
+            getTitle: function (container) { return "" + container.id; },
             getColor: function (container) { return "red"; }
         };
     };

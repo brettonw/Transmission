@@ -64,3 +64,11 @@ svg {
     margin:             0;
 }
 
+.tree-svg-node-title {
+    font-size:          14px;
+}
+
+.tree-svg-node-expandable {
+    fill:               #ffff00;
+}
+

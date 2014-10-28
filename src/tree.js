@@ -1,22 +1,17 @@
-var globalId = 0;
-var index = [];
-var makeContainer = function (node, parent, expanded) {
-    var container = {
-        "node": node,
-        "parent": parent,
-        "children": [],
-        "expanded": expanded,
-        "id": globalId++
-    };
-    if (parent != null) {
-        parent.children.push(container);
-    }
-    index[container.id] = container;
-    return container;
-};
+var treeRoot;
+
+var drawTree = function () {
+    var helper = TreeSvg.getDefaultHelper();
+    helper.getTitle = function (container) { return "" + container.node.id; };
+    helper.getColor = function (container) { return container.node.state.color; };
+    var svg = TreeSvg.renderWithHelper(treeRoot, helper);
+    document.getElementById("tree").innerHTML = svg;
+}
+
+TreeSvgHelper.setClickHandler(function (container) { drawTree(); });
+TreeSvg.setNodeRadius(6.0);
 
 var makeTree = function () {
-
     // copy the population array, since we want to sort it
     var data = new Array(populationSize);
     for (var i = 0; i < populationSize; ++i) {
@@ -59,12 +54,9 @@ var makeTree = function () {
     }
 
     // get the root of the tree
-    var root = TreeSvg.extractTreeFromParentField(data, "id", "parentId");
-    var helper = TreeSvg.getDefaultHelper ();
-    helper.getId = function (container) { return container.node.id; };
-    helper.getColor = function (container) { return container.node.state.color; };
-    var svg = TreeSvg.renderWithHelper(root, helper);
-    document.getElementById("tree").innerHTML = svg;
+    TreeSvgHelper.index = [];
+    treeRoot = TreeSvgHelper.extractTreeFromParentField(data, "id", "parentId");
+    drawTree();
 };
 
 
