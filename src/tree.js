@@ -42,7 +42,7 @@ var makeTree = function () {
             // already know that a is null
             return -1;
         } else {
-            return 0;
+            return a.id - b.id;
         }
     });
 
