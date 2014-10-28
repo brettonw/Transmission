@@ -2,14 +2,14 @@ var TreeSvg = function () {
     var ts = Object.create(null);
 
     // the rendering radius of nodes
-    var nodeRadius = 1.5;
+    var nodeRadius = 4.0;
     ts.setNodeRadius = function (r) {
         nodeRadius = r;
     };
 
     // parameters used by the layout
-    var displayWidth = 150;
-    var displayHeight = 100;
+    var displayWidth = 600;
+    var displayHeight = 400;
 
     // parameters used to make pretty curves in the edges
     var drawArcEdges = true;
@@ -20,6 +20,15 @@ var TreeSvg = function () {
 
     // label drawing assistance
     var drawLabels = true;
+    var TextPlacement = {
+        "LEFT": -1,
+        "RIGHT": 1
+    };
+    var labelStyle = {
+        "LEFT": ' style="text-anchor:end;" ',
+        "RIGHT": ' style="text-anchor:start;" '
+    };
+    var textPostSpacing = 0.5;
 
     // utility function for getting the tension right on the quadratic
     // Bezier curve we'll use for the edges
@@ -74,10 +83,14 @@ var TreeSvg = function () {
             return point(this.c.x + (Math.cos(x) * y), this.c.y + (Math.sin(x) * y));
         };
 
-        rl.textTransform = function (xy) {
+        rl.textTransform = function (xy, leftOrRight) {
             var p = this.xy(xy);
             var angle = ((xy.x * this.xScale) + this.zero) * (180.0 / Math.PI);
-            return 'transform="rotate(' + angle + ', ' + p.x + ', ' + p.y + ') translate(-' + (nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+            while (angle > 90) { angle -= 180; leftOrRight *= -1; }
+            while (angle < -90) { angle += 180; leftOrRight *= -1; }
+            var svg = (leftOrRight < 0) ? labelStyle.LEFT: labelStyle.RIGHT;
+            svg += 'transform="rotate(' + angle + ', ' + p.x + ', ' + p.y + ') translate(' + (leftOrRight * nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+            return svg;
         };
 
         return rl;
@@ -88,33 +101,37 @@ var TreeSvg = function () {
         "Linear-Vertical": linearLayout ({
             "setup": function (treeWidth, treeDepth) {
                 this.xScale = displayWidth / treeWidth;
-                this.yScale = displayHeight / treeDepth;
+                this.yScale = displayHeight / (treeDepth + textPostSpacing);
             },
             "xy": function (xy) {
                 return point(xy.x * this.xScale, xy.y * this.yScale);
             },
-            "textTransform": function (xy) {
+            "textTransform": function (xy, leftOrRight) {
                 var p = this.xy(xy);
-                return 'transform="rotate(90, ' + p.x + ', ' + p.y + ') translate(-' + (nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+                var svg = (leftOrRight == TextPlacement.LEFT) ? labelStyle.LEFT : labelStyle.RIGHT;
+                svg += 'transform="rotate(90, ' + p.x + ', ' + p.y + ') translate(' + (leftOrRight * nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+                return svg;
             }
         }),
         "Linear-Horizontal": linearLayout ({
             "setup": function (treeWidth, treeDepth) {
-                this.xScale = displayWidth / treeDepth;
+                this.xScale = displayWidth / (treeDepth + textPostSpacing);
                 this.yScale = displayHeight / treeWidth;
             },
             "xy": function (xy) {
                 return point(xy.y * this.xScale, displayHeight - (xy.x * this.yScale));
             },
-            "textTransform": function (xy) {
-                return 'transform="translate(-' + (nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+            "textTransform": function (xy, leftOrRight) {
+                var svg = (leftOrRight == TextPlacement.LEFT) ? labelStyle.LEFT : labelStyle.RIGHT;
+                svg += 'transform="translate(' + (leftOrRight * nodeRadius * 1.5) + ', ' + (nodeRadius * 0.66) + ')"';
+                return svg;
             }
         }),
         "Radial": radialLayout ({
             "setup": function (treeWidth, treeDepth) {
                 this.zero = 0.0;
                 this.xScale = (Math.PI * -2.0) / (treeWidth + 1);
-                this.yScale = (displayHeight * 0.5) / treeDepth;
+                this.yScale = (displayHeight * 0.5) / (treeDepth + textPostSpacing);
                 this.c = point (displayWidth * 0.5, displayHeight * 0.5);
             },
             "drawRow": function (i) {
@@ -127,7 +144,7 @@ var TreeSvg = function () {
                 var angle = Math.asin((displayWidth * 0.5) / displayHeight) * 2.0;
                 this.zero = Math.PI - ((Math.PI - angle) / 2.0);
                 this.xScale = -angle / treeWidth;
-                this.yScale = displayHeight / treeDepth;
+                this.yScale = displayHeight / (treeDepth + textPostSpacing);
                 this.c = point (displayWidth * 0.5, 0.0);
             }
         }),
@@ -136,7 +153,7 @@ var TreeSvg = function () {
                 var angle = Math.asin((displayHeight * 0.5) / displayWidth) * 2.0;
                 this.zero = angle / 2.0;
                 this.xScale = -angle / treeWidth;
-                this.yScale = displayWidth / treeDepth;
+                this.yScale = displayWidth / (treeDepth + textPostSpacing);
                 this.c = point (0.0, displayHeight * 0.5);
             }
         })
@@ -178,10 +195,14 @@ var TreeSvg = function () {
     // helper function to walk an array of nodes and build a tree
     ts.extractTreeFromParentField = function (nodes, idField, parentIdField) {
         // internal function to get a node container from the id
-        var nodesById = Object.create(null);
+        var nodesById = {};
         var getContainerById = function (id, node) {
             if (!(id in nodesById)) {
-                nodesById[id] = { "children": [] };
+                nodesById[id] = {
+                    "children": [],
+                    "expanded": true,
+                    "id":id
+                };
             }
             var container = nodesById[id];
             if (node != null) {
@@ -249,11 +270,16 @@ var TreeSvg = function () {
         };
         recursiveDepthCheck(0, root);
 
+        // function to see if we should traverse further in the tree
+        var getShowChildren = function (container) {
+            return (container.children.length == 0) || container.expanded;
+        }
+
         // recursive layout in uniform scale space
         var depth = 1;
         var recursiveLayout = function (x, y, container) {
             var childX = x;
-            if (helper.getShowChildren(container)) {
+            if (getShowChildren(container)) {
                 var childCount = container.children.length;
                 if (childCount > 0) {
                     var nextY = y + 1;
@@ -295,7 +321,7 @@ var TreeSvg = function () {
 
         // draw the edges
         var recursiveDrawEdges = function (container) {
-            if (helper.getShowChildren(container)) {
+            if (getShowChildren(container)) {
                 for (var i = 0, childCount = container.children.length; i < childCount; ++i) {
                     var child = container.children[i];
                     recursiveDrawEdges(child);
@@ -315,27 +341,22 @@ var TreeSvg = function () {
 
         // draw the nodes
         var recursiveDrawNodes = function (container) {
-            if (helper.getShowChildren(container)) {
+            if (getShowChildren(container)) {
                 for (var i = 0, childCount = container.children.length; i < childCount; ++i) {
                     recursiveDrawNodes(container.children[i]);
                 }
             }
             if (container.node != null) {
                 var title = helper.getTitle(container);
-                var id = helper.getId(container);
 
-                // create an SVG group
-                svg += '<g ';
-                if (helper.onClick != null) {
-                    svg += 'onclick="' + helper.onClick + '(' + id + ');" ';
-                }
-                svg += '>';
+                // create an SVG group, with a click handler
+                svg += '<g onclick="onTreeClick(' + container.id + ');">';
 
                 // add a node as a circle
                 svg += '<circle title="' + title + '" ';
                 var p = layout.xy(container);
                 svg += 'cx="' + p.x + '" cy="' + p.y + '" r="' + nodeRadius + '" ';
-                svg += (helper.getShowChildren(container) ? styleNames.node : styleNames.expand) + ' ';
+                svg += (getShowChildren(container) ? styleNames.node : styleNames.expand) + ' ';
 
                 // this will override the class definition if fill was not
                 // *EVER*specified - useful for programmatic control
@@ -345,8 +366,12 @@ var TreeSvg = function () {
                 // add the text description of the node
                 if (drawLabels) {
                     svg += '<text x="' + p.x + '" y="' + p.y + '" ';
-                    svg += styleNames.title + ' ';
-                    svg += layout.textTransform(container) + ' ';
+                    svg += styleNames.title
+                    if ((container.children.length == 0) || (!container.expanded)) {
+                        svg += layout.textTransform(container, TextPlacement.RIGHT) + ' ';
+                    } else {
+                        svg += layout.textTransform(container, TextPlacement.LEFT) + ' ';
+                    }
                     svg += '>' + title + '</text>';
                 }
 
@@ -363,11 +388,8 @@ var TreeSvg = function () {
 
     ts.getDefaultHelper = function () {
         return {
-            getId: function (container) { return "node"; },
-            getTitle: function (container) { return this.getId(container); },
-            getColor: function (container) { return "red"; },
-            getShowChildren: function (container) { return true; },
-            onClick: null
+            getTitle: function (container) { return "" + id; },
+            getColor: function (container) { return "red"; }
         };
     };
 
