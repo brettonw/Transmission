@@ -26,6 +26,14 @@ var onLoad = function () {
     var setValue = function (name, value) {
         var element = document.getElementById(name);
         element.value = value;
+        if ("children" in element) {
+            for (var i = 0; i < element.children.length; ++i) {
+                var child = element.children[i];
+                if (child.value == value) {
+                    child.selected = true;
+                }
+            }
+        }
         element.onchange();
         if (element.oninput != null) {
             element.oninput();
