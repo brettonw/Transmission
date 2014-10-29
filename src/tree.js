@@ -1,10 +1,10 @@
 var treeRoot;
 
 var drawTree = function () {
-    var helper = TreeSvg.getDefaultHelper();
-    helper.getTitle = function (container) { return "" + container.node.id; };
-    helper.getColor = function (container) { return container.node.state.color; };
-    var svg = TreeSvg.renderWithHelper(treeRoot, helper);
+    var adapter = TreeSvg.getDefaultAdapter();
+    adapter.getTitle = function (container) { return "" + container.node.id; };
+    adapter.getColor = function (container) { return container.node.state.color; };
+    var svg = TreeSvg.renderSvg(treeRoot, "Linear-Vertical", adapter);
     document.getElementById("tree").innerHTML = svg;
 }
 
