@@ -16,6 +16,7 @@ var makeTree = function () {
     var data = new Array(populationSize);
     for (var i = 0; i < populationSize; ++i) {
         data[i] = population[i];
+        data[i].r0 = 0;
     }
 
     // helper function to retrieve an infection event
@@ -47,11 +48,37 @@ var makeTree = function () {
     });
 
     // sweep the population to build the infection tree
-    for (var i = 0, count = data.length; i < count; ++i) {
+    for (var i = 0; i < populationSize; ++i) {
         var atom = data[i];
         var infectionEvent = getInfectionEvent(atom);
-        atom.parentId = (infectionEvent != null) ? infectionEvent.by.id : null;
+        if (infectionEvent != null) {
+            atom.parentId = infectionEvent.by.id;
+            infectionEvent.by.r0++;
+        } else {
+            atom.parentId = null;
+        }
     }
+
+    // compute the reproductive statistics
+    var sum = 0;
+    var min = populationSize;
+    var max = 0;
+    var count = 0;
+    for (var i = 0; i < populationSize; ++i) {
+        var atom = data[i];
+        //if (atom.state.name != disease.HEALTHY.name) {
+        var r0 = atom.r0;
+        if (r0 > 0) {
+            min = Math.min(r0, min);
+            max = Math.max(r0, max);
+            sum += r0;
+            count++;
+        }
+    }
+    var avg = (count > 0) ? (sum / count) : 0;
+    var median = (min + max) / 2.0;
+    console.log("R0: avg (" + avg + "), min (" + min + "), max (" + max + "), med (" + median + ")");
+
 
     // get the root of the tree
     TreeSvgHelper.index = [];
