@@ -17,12 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FF450CC0-797
 		src\filters.js = src\filters.js
 		src\samplers.js = src\samplers.js
 		src\simulator.js = src\simulator.js
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tree-svg", "tree-svg", "{B4705C29-A3D8-4846-87CE-83856A9E5FF8}"
-	ProjectSection(SolutionItems) = preProject
-		tree-svg\tree-svg.css = tree-svg\tree-svg.css
-		tree-svg\tree-svg.js = tree-svg\tree-svg.js
+		src\tree.js = src\tree.js
 	EndProjectSection
 EndProject
 Global
@@ -31,6 +26,5 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FF450CC0-7975-4A3C-8F1D-84BCC9A22300} = {9B4C1135-D4A0-4D4D-B33A-3E6D7B9EE103}
-		{B4705C29-A3D8-4846-87CE-83856A9E5FF8} = {9B4C1135-D4A0-4D4D-B33A-3E6D7B9EE103}
 	EndGlobalSection
 EndGlobal

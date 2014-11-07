@@ -47,7 +47,7 @@ var onLoad = function () {
     setValue("prophylacticUseRateRange", 0);
     setValue("prophylacticEfficacyRange", 95);
     setValue("prophylacticBlendBiasRange", 60);
-    document.getElementById("liveUpdateGraphCheckbox").checked = liveUpdateGraph = true;
+    document.getElementById("liveUpdateSirPlotCheckbox").checked = liveUpdateSirPlot = true;
     document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = true;
 
     loaded = true;
@@ -117,8 +117,8 @@ var animatePairsCheckboxChanged = function (checkbox) {
     animatePairs = checkbox.checked;
 }
 
-var liveUpdateGraphCheckboxChanged = function (checkbox) {
-    liveUpdateGraph = checkbox.checked;
+var liveUpdateSirPlotCheckboxChanged = function (checkbox) {
+    liveUpdateSirPlot = checkbox.checked;
 }
 
 var liveUpdateTreeCheckboxChanged = function (checkbox) {

@@ -14,7 +14,7 @@
 // events model transmission rates, affected by the various strategies
 
 var animatePairs = false;
-var liveUpdateGraph = false;
+var liveUpdateSirPlot = false;
 var liveUpdateTree = false;
 
 var borderColorHighlight = "yellow";
@@ -29,7 +29,8 @@ var infectedCount = 0;
 
 // the stats to plot at the end of a run
 var infectiousByDay = [];
-var infectedByDay = [];
+var susceptibleByDay = [];
+var removedByDay = [];
 
 // the clock
 var clock;
@@ -66,7 +67,8 @@ var createPopulation = function () {
     atom.setState (disease.INFECTED, null);
     infectiousCount = infectedCount = 1;
     infectiousByDay = [];
-    infectedByDay = [];
+    susceptibleByDay = [];
+    removedByDay = [];
 };
 
 var clearHighlight = function () {
@@ -112,16 +114,16 @@ var conductEvent = function () {
     lastAtomB = atomB;
 };
 
-var makeGraph = function () {
-    var svg = PlotSvg.multipleLine("Infected Count vs. Day", "Day", "Infected (n)", [infectiousByDay, infectedByDay]);
-    document.getElementById("chart").innerHTML = svg;
+var makeSirPlot = function () {
+    var svg = PlotSvg.multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay]);
+    document.getElementById("sirPlot").innerHTML = svg;
 };
 
 var allInfected = function () {
     clearHighlight();
 
     // complete the display
-    makeGraph();
+    makeSirPlot();
     makeTree();
 
     // an event to say we're done
@@ -133,6 +135,8 @@ var startNewDay = function () {
 
     // sweep over the population to see if somebody becomes contagious or heals
     // or dies, or...
+    var susceptible = 0;
+    var removed = 0;
     for (var id = 0; id < populationSize; ++id) {
         var atom = population[id];
 
@@ -165,17 +169,25 @@ var startNewDay = function () {
                 } else if (Math.random() < atom.state.recurrence) {
                     // or a convalescent individual might have a recurrence
                     atom.setState(disease.CLINICAL, null);
+                } else {
+                    // otherwise just count the removed individual
+                    removed += ((!atom.state.susceptible) ? 1 : 0);
                 }
             }
                 break;
         }
+
+        // count the susceptible and removed atoms
+        susceptible += (atom.state.susceptible ? 1 : 0);
     }
 
     // accumulate the stats
-    infectedByDay.push({ x: day, y: infectedCount });
-    infectiousByDay.push({ x: day, y: infectiousCount });
-    if (liveUpdateGraph) {
-        makeGraph();
+    infectiousByDay.push({ x: day, y: infectiousCount / populationSize });
+    susceptibleByDay.push({ x: day, y: susceptible / populationSize });
+    removedByDay.push({ x: day, y: removed / populationSize });
+
+    if (liveUpdateSirPlot) {
+        makeSirPlot();
     }
     if (liveUpdateTree) {
         makeTree();
@@ -298,6 +310,6 @@ var init = function () {
     linkSvg();
 
     // complete the display
-    makeGraph();
+    makeSirPlot();
     makeTree();
 };
