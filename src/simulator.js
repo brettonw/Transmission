@@ -115,7 +115,7 @@ var conductEvent = function () {
 };
 
 var makeSirPlot = function () {
-    var svg = PlotSvg.multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay]);
+    var svg = PlotSvg.setPlotPoints (false).multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay], ["Susceptible", "Infectious", "Removed"]);
     document.getElementById("sirPlot").innerHTML = svg;
 };
 
