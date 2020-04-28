@@ -13,47 +13,47 @@
 
 // events model transmission rates, affected by the various strategies
 
-var animatePairs = false;
-var liveUpdateSirPlot = false;
-var liveUpdateTree = false;
+let animatePairs = false;
+let liveUpdateSirPlot = false;
+let liveUpdateTree = false;
 
-var borderColorHighlight = "yellow";
-var borderColorActive = "black";
+let borderColorHighlight = "yellow";
+let borderColorActive = "black";
 
 // the population
-var populationDimension;
-var populationSize;
-var population;
-var infectiousCount = 0;
-var infectedCount = 0;
+let populationDimension;
+let populationSize;
+let population;
+let infectiousCount = 0;
+let infectedCount = 0;
+let deadCount = 0;
 
 // the stats to plot at the end of a run
-var infectiousByDay = [];
-var susceptibleByDay = [];
-var removedByDay = [];
+let infectiousByDay = [];
+let susceptibleByDay = [];
+let removedByDay = [];
 
 // the clock
-var clock;
-var day;
-var clockDisplay;
-var paused;
-var eventRate;
-var eventsPerDiem;
+let clock;
+let day;
+let clockDisplay;
+let paused;
+let eventRate;
+let eventsPerDiem;
 
-var lastAtomA, lastAtomB;
+let lastAtomA, lastAtomB;
 
-var createPopulation = function () {
+let createPopulation = function () {
     population = [];
 
     // create all the individuals
-    for (var id = 0; id < populationSize; ++id) {
-        var atom = Object.create (atomPrototype);
+    for (let id = 0; id < populationSize; ++id) {
+        let atom = Object.create (atomPrototype);
         atom.id = id;
         atom.events = [];
 
-
         // loop over the filters
-        for (var i = 0, count = filters.length; i < count; ++i) {
+        for (let i = 0, count = filters.length; i < count; ++i) {
             filters[i].init(atom);
         }
 
@@ -62,16 +62,17 @@ var createPopulation = function () {
     }
 
     // now seed one of the individuals with disease
-    var randomIndex = Math.floor (Math.random () * populationSize);
-    var atom = population[randomIndex];
+    let randomIndex = Math.floor (Math.random () * populationSize);
+    let atom = population[randomIndex];
     atom.setState (disease.INFECTED, null);
     infectiousCount = infectedCount = 1;
+    deadCount = 0;
     infectiousByDay = [];
     susceptibleByDay = [];
     removedByDay = [];
 };
 
-var clearHighlight = function () {
+let clearHighlight = function () {
     if (animatePairs) {
         // clear the last event info by denoting those atoms as "active"
         lastAtomA.link.style.stroke = borderColorActive;
@@ -79,12 +80,12 @@ var clearHighlight = function () {
     }
 }
 
-var conductEvent = function () {
+let conductEvent = function () {
     clearHighlight();
 
     // randomly pair two individuals from the population
-    var atomA = population[Math.floor(Math.random() * populationSize)];
-    var atomB = population[Math.floor(Math.random() * populationSize)];
+    let atomA = population[Math.floor(Math.random() * populationSize)];
+    let atomB = population[Math.floor(Math.random() * populationSize)];
     while (!sampler.pair(atomA, atomB)) {
         atomB = population[Math.floor(Math.random() * populationSize)];
     }
@@ -96,8 +97,8 @@ var conductEvent = function () {
     }
 
     // loop over the filters
-    var transmit = true;
-    for (var i = 0, count = filters.length; transmit && (i < count) ; ++i) {
+    let transmit = true;
+    for (let i = 0, count = filters.length; transmit && (i < count) ; ++i) {
         transmit = filters[i].test(atomA, atomB);
     }
 
@@ -114,12 +115,12 @@ var conductEvent = function () {
     lastAtomB = atomB;
 };
 
-var makeSirPlot = function () {
-    var svg = PlotSvg.setPlotPoints (false).multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay], ["Susceptible", "Infectious", "Removed"]);
+let makeSirPlot = function () {
+    let svg = PlotSvg.setLegendPosition (455, 390).setPlotPoints (false).multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay], ["Susceptible", "Infectious", "Removed"]);
     document.getElementById("sirPlot").innerHTML = svg;
 };
 
-var allInfected = function () {
+let allInfected = function () {
     clearHighlight();
 
     // complete the display
@@ -130,19 +131,19 @@ var allInfected = function () {
     simulatorFinished();
 };
 
-var startNewDay = function () {
+let startNewDay = function () {
     day = Math.floor(clock / eventsPerDiem);
 
     // sweep over the population to see if somebody becomes contagious or heals
     // or dies, or...
-    var susceptible = 0;
-    var removed = 0;
-    for (var id = 0; id < populationSize; ++id) {
-        var atom = population[id];
+    let susceptible = 0;
+    let removed = 0;
+    for (let id = 0; id < populationSize; ++id) {
+        let atom = population[id];
+        let probability = ((day - atom.day()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
 
         switch (atom.state.name) {
             case disease.INFECTED.name: {
-                var probability = ((day - atom.day()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // an infected individual might become clinical
                     atom.setState(disease.CLINICAL, null);
@@ -150,18 +151,22 @@ var startNewDay = function () {
             }
                 break;
             case disease.CLINICAL.name: {
-                var probability = ((day - atom.day()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // a clinical individual might get better, and become convalescent
                     if (disease.CONVALESCENT.recurrence == 0) {
                         --infectiousCount;
                     }
                     atom.setState(disease.CONVALESCENT, null);
+                } else if (Math.random() < atom.state.mortality) {
+                    // or they might die
+                    atom.setState(disease.DEAD, null);
+                    ++deadCount;
+                    --infectedCount;
+                    --infectiousCount;
                 }
             }
                 break;
             case disease.CONVALESCENT.name: {
-                var probability = ((day - atom.day()) - atom.state.daysMin) / (atom.state.daysMax - atom.state.daysMin);
                 if (Math.random() < probability) {
                     // a convalescent individual might return to healthy
                     --infectedCount;
@@ -194,7 +199,7 @@ var startNewDay = function () {
     }
 };
 
-var tick = function (keepTicking) {
+let tick = function (keepTicking) {
     if (!paused) {
         if ((infectiousCount > 0) && (infectedCount < populationSize)) {
             // see if it's a new day
@@ -220,29 +225,29 @@ var tick = function (keepTicking) {
     clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + " = " + ((100.0 * infectedCount) / populationSize).toFixed(1) + "%)";
 };
 
-var makeSvg = function () {
+let makeSvg = function () {
     // open the SVG and make the render port work like a mathematical system
-    var svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\">";
+    let svg = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"-1.125 -1.125 2.25 2.25\" preserveAspectRatio=\"xMidYMid meet\">";
     //svg += "<g id=\"root\" transform=\"scale(1, -1)\">";
 
     // compute the placement parameters
-    var blockSize = 0.75;
-    var spacing = 2.0 / (populationDimension + 1);
-    var size = spacing * blockSize;
-    var offset = -size / 2.0;
+    let blockSize = 0.75;
+    let spacing = 2.0 / (populationDimension + 1);
+    let size = spacing * blockSize;
+    let offset = -size / 2.0;
 
     // loop over the whole population to place each individual in the world
-    for (var id = 0; id < populationSize; ++id) {
+    for (let id = 0; id < populationSize; ++id) {
         // get the individual from the population
-        var atom = population[id];
+        let atom = population[id];
 
         // compute the position of the block
-        var xy = atom.map();
-        var x = -1 + ((xy.x + 1) * spacing) + offset;
-        var y = -1 + ((xy.y + 1) * spacing) + offset;
+        let xy = atom.map();
+        let x = -1 + ((xy.x + 1) * spacing) + offset;
+        let y = -1 + ((xy.y + 1) * spacing) + offset;
 
         // loop over the filters
-        for (var i = 0, count = filters.length; i < count ; ++i) {
+        for (let i = 0, count = filters.length; i < count ; ++i) {
             svg += filters[i].render(atom, x, y, size, size);
         }
     }
@@ -256,10 +261,10 @@ var makeSvg = function () {
     return svg;
 };
 
-var linkSvg = function () {
-    for (var id = 0; id < populationSize; ++id) {
-        var atom = population[id];
-        var link = document.getElementById ("rect" + id);
+let linkSvg = function () {
+    for (let id = 0; id < populationSize; ++id) {
+        let atom = population[id];
+        let link = document.getElementById ("rect" + id);
         atom.link = link;
     }
     clockDisplay = document.getElementById ("clockDisplay");
@@ -272,7 +277,7 @@ var linkSvg = function () {
     lastAtomB = lastAtomA;
 }
 
-var toggleRun = function () {
+let toggleRun = function () {
     // pause and resume animation
     if (paused) {
         if ((infectiousCount == 0) || (infectedCount == populationSize)) {
@@ -287,7 +292,7 @@ var toggleRun = function () {
     return paused;
 };
 
-var singleStep = function () {
+let singleStep = function () {
     // pause and resume animation
     if (paused) {
         paused = false;
@@ -299,13 +304,13 @@ var singleStep = function () {
     return paused;
 };
 
-var init = function () {
+let init = function () {
     // reset the clock
     clock = day = 0;
     paused = true;
 
     createPopulation();
-    var display = makeSvg();
+    let display = makeSvg();
     document.getElementById("display").innerHTML = display;
     linkSvg();
 

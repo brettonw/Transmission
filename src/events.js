@@ -40,15 +40,15 @@ var onLoad = function () {
         }
     };
 
-    setValue("populationDimensionRange", 5);
-    setValue("eventRateRange", 2.0);
-    setValue("diseaseSelect", "Perfect");
+    setValue("populationDimensionRange", 14);
+    setValue("eventRateRange", 5.0);
+    setValue("diseaseSelect", "SARS-CoV-2 (COVID-19)");
     setValue("samplerSelect", "Random");
     setValue("prophylacticUseRateRange", 0);
-    setValue("prophylacticEfficacyRange", 95);
+    setValue("prophylacticEfficacyRange", 60);
     setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("liveUpdateSirPlotCheckbox").checked = liveUpdateSirPlot = true;
-    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = true;
+    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = false;
 
     loaded = true;
 

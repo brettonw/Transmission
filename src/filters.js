@@ -79,7 +79,7 @@ var filterUseProphylactic = function (useRate, efficacy, userProbability, nonUse
         var rect = "";
         rect += "<rect x=\"" + (x + (width / 3.0)) + "\" y=\"" + (y + (height / 3.0)) + "\"";
         rect += " width=\"" + (width / 3.0) + "\" height=\"" + (height / 3.0) + "\"";
-        rect += " fill=\"" + makeGray(1.0 - atom.useProphylactic) + "\"";
+        rect += " fill=\"" + makeGray(1.0 - (atom.useProphylactic * ((efficacy *0.667) + 0.333))) + "\"";
         rect += " stroke=\"none\" />"
         return rect;
     }
