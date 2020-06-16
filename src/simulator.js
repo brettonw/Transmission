@@ -143,7 +143,7 @@ let startNewDay = function () {
                         --infectiousCount;
                     }
                     atom.setState(disease.CONVALESCENT, null);
-                } else if (Math.random() < atom.state.mortality) {
+                } else if (Math.random() < atom.state.fatality) {
                     // or they might die
                     atom.setState(disease.DEAD, null);
                     ++deadCount;
@@ -184,7 +184,7 @@ let startNewDay = function () {
     makeTree(liveUpdateTree);
 
     clockDisplay.textContent = "Day " + day + " (Pairs: " + clock + ", Infected: " + infectedCount + "/" + populationSize + " = " + ((100.0 * infectedCount) / populationSize).toFixed(1) + "%, Dead: " + deadCount + ")";
-    mortalityRateDisplay.textContent = "Mortality: " + (1000 * (deadCount / populationSize)).toFixed(3) + " / 1,000";
+    mortalityRateDisplay.textContent = "Mortality: " + (1000 * (deadCount / populationSize)).toFixed(2) + " / 1,000";
     caseFatilityRateDisplay.textContent = "CFR: " + (100 * (deadCount / infectedCount)).toFixed(2) + "%";
 };
 
