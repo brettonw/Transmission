@@ -35,14 +35,83 @@ var filterCanTransmit = function (states) {
     };
 
     f.render = function (atom, x, y, width, height) {
+        let pt = function (px, py) {
+            return (x + (width * px)) + "," + (y + ((1 - py) * height));
+        }
+
+        let pts = [
+            pt (0.000, 0.200),
+            pt (0.000, 0.750),
+            pt (0.400, 1.000),
+            pt (0.675, 1.000),
+            pt (1.000, 0.700),
+            pt (1.000, 0.200),
+            pt (0.800, 0.000),
+            pt (0.800, 0.60)
+            ];
+
         // return an SVG rendering command within the box provided
-        var rect = "";
+        /*
         rect += "<rect id=\"rect" + atom.id + "\"";
         rect += " x=\"" + x + "\" y=\"" + y + "\"";
         rect += " width=\"" + width + "\" height=\"" + height + "\"";
         rect += " fill=\"" + atom.state.color + "\"";
         rect += " stroke=\"black\" stroke-width=\"0.008\" />"
-        return rect;
+
+        rect += "<circle id=\"rect" + atom.id + "\"";
+        rect += " cx=\"" + (x + (width / 2)) + "\" cy=\"" + (y + (height / 2)) + "\"";
+        rect += " r=\"" + (Math.min (width, height) / 3) + "\"";
+         */
+        let poly = "";
+        poly += "<polygon id=\"rect" + atom.id + "\"";
+        poly += " points=\"" +
+            pts[0] + " " +
+            pts[1] + " " +
+            pts[2] + " " +
+            pts[3] + " " +
+            pts[4] + " " +
+            pts[5] + " " +
+            pts[6] + "\"";
+        poly += " style=\"fill:white;stroke:black;stroke-width:0.005;\"";
+        poly += " />";
+
+        poly += "<polygon";
+        poly += " points=\"" +
+            pts[6] + " " +
+            pts[7] + " " +
+            pts[4] + " " +
+            pts[5] + "\"";
+        poly += " style=\"fill:black;opacity:0.2;stroke:none;\"";
+        poly += " />";
+
+        poly += "<polygon";
+        poly += " points=\"" +
+            pts[6] + " " +
+            pts[7] + " " +
+            pts[4] + " " +
+            pts[5] + "\"";
+        poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
+        poly += " />";
+
+        poly += "<polygon";
+        poly += " points=\"" +
+            pts[7] + " " +
+            pts[2] + " " +
+            pts[3] + " " +
+            pts[4] + "\"";
+        poly += " style=\"fill:black;opacity:0.1;stroke:none;\"";
+        poly += " />";
+
+        poly += "<polygon";
+        poly += " points=\"" +
+            pts[7] + " " +
+            pts[2] + " " +
+            pts[3] + " " +
+            pts[4] + "\"";
+        poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
+        poly += " />";
+
+        return poly;
     }
 
     return f;
@@ -77,8 +146,14 @@ var filterUseProphylactic = function (useRate, efficacy, userProbability, nonUse
 
         // return an SVG rendering command within the box provided
         var rect = "";
+        /*
         rect += "<rect x=\"" + (x + (width / 3.0)) + "\" y=\"" + (y + (height / 3.0)) + "\"";
         rect += " width=\"" + (width / 3.0) + "\" height=\"" + (height / 3.0) + "\"";
+        rect += " fill=\"" + makeGray(1.0 - (atom.useProphylactic * ((efficacy *0.667) + 0.333))) + "\"";
+        rect += " stroke=\"none\" />"
+         */
+
+        rect += "<circle cx=\"" + (x + (width / 2)) + "\" cy=\"" + (y + (height / 2)) + "\" r=\"" + (Math.min (width, height) / 6) + "\"";
         rect += " fill=\"" + makeGray(1.0 - (atom.useProphylactic * ((efficacy *0.667) + 0.333))) + "\"";
         rect += " stroke=\"none\" />"
         return rect;

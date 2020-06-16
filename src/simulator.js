@@ -13,7 +13,6 @@
 
 // events model transmission rates, affected by the various strategies
 
-let animatePairs = false;
 let liveUpdateSirPlot = false;
 let liveUpdateTree = false;
 
@@ -32,11 +31,15 @@ let deadCount = 0;
 let infectiousByDay = [];
 let susceptibleByDay = [];
 let removedByDay = [];
+let deadByDay = [];
 
 // the clock
 let clock;
 let day;
 let clockDisplay;
+let r0Display;
+let mortalityRateDisplay;
+let caseFatilityRateDisplay;
 let paused;
 let eventRate;
 let eventsPerDiem;
@@ -70,30 +73,15 @@ let createPopulation = function () {
     infectiousByDay = [];
     susceptibleByDay = [];
     removedByDay = [];
+    deadByDay = [];
 };
 
-let clearHighlight = function () {
-    if (animatePairs) {
-        // clear the last event info by denoting those atoms as "active"
-        lastAtomA.link.style.stroke = borderColorActive;
-        lastAtomB.link.style.stroke = borderColorActive;
-    }
-}
-
 let conductEvent = function () {
-    clearHighlight();
-
     // randomly pair two individuals from the population
     let atomA = population[Math.floor(Math.random() * populationSize)];
     let atomB = population[Math.floor(Math.random() * populationSize)];
     while (!sampler.pair(atomA, atomB)) {
         atomB = population[Math.floor(Math.random() * populationSize)];
-    }
-
-    // highlight this pairing
-    if (animatePairs) {
-        atomA.link.style.stroke = borderColorHighlight;
-        atomB.link.style.stroke = borderColorHighlight;
     }
 
     // loop over the filters
@@ -115,17 +103,15 @@ let conductEvent = function () {
     lastAtomB = atomB;
 };
 
-let makeSirPlot = function () {
-    let svg = PlotSvg.setLegendPosition (455, 390).setPlotPoints (false).multipleLine("SIR", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay], ["Susceptible", "Infectious", "Removed"]);
+let makeSirdPlot = function () {
+    let svg = PlotSvg.setLegendPosition (455, 390).setPlotPoints (false).multipleLine("SIRD", "Day", "Count", [susceptibleByDay, infectiousByDay, removedByDay, deadByDay], ["Susceptible", "Infectious", "Removed", "Dead"]);
     document.getElementById("sirPlot").innerHTML = svg;
 };
 
 let allInfected = function () {
-    clearHighlight();
-
     // complete the display
-    makeSirPlot();
-    makeTree();
+    makeSirdPlot();
+    makeTree(true);
 
     // an event to say we're done
     simulatorFinished();
@@ -190,17 +176,35 @@ let startNewDay = function () {
     infectiousByDay.push({ x: day, y: infectiousCount / populationSize });
     susceptibleByDay.push({ x: day, y: susceptible / populationSize });
     removedByDay.push({ x: day, y: removed / populationSize });
+    deadByDay.push({ x: day, y: deadCount / populationSize });
 
     if (liveUpdateSirPlot) {
-        makeSirPlot();
+        makeSirdPlot();
     }
-    if (liveUpdateTree) {
-        makeTree();
-    }
+    makeTree(liveUpdateTree);
+
+    clockDisplay.textContent = "Day " + day + " (Pairs: " + clock + ", Infected: " + infectedCount + "/" + populationSize + " = " + ((100.0 * infectedCount) / populationSize).toFixed(1) + "%, Dead: " + deadCount + ")";
+    mortalityRateDisplay.textContent = "Mortality: " + (1000 * (deadCount / populationSize)).toFixed(3) + " / 1,000";
+    caseFatilityRateDisplay.textContent = "CFR: " + (100 * (deadCount / infectedCount)).toFixed(2) + "%";
 };
 
 let tick = function (keepTicking) {
+    // one time through is a day
     if (!paused) {
+        if ((infectiousCount > 0) && (infectedCount < populationSize)) {
+            startNewDay();
+            for (let i = 0; i < eventsPerDiem; ++i) {
+                ++clock;
+                conductEvent ();
+            }
+            if (keepTicking) {
+                setTimeout(function () { tick(true); }, 50);
+            }
+        } else {
+            allInfected();
+            paused = true;
+        }
+/*
         if ((infectiousCount > 0) && (infectedCount < populationSize)) {
             // see if it's a new day
             if ((clock % eventsPerDiem) == 0) {
@@ -212,7 +216,7 @@ let tick = function (keepTicking) {
             // advance the clock
             ++clock;
 
-            // conduct an event and loop back @ 30Hz
+            // conduct an event and loop back @ 20Hz if we are animating
             conductEvent();
             if (keepTicking) {
                 setTimeout(function () { tick(true); }, animatePairs ? 50 : 1);
@@ -221,8 +225,8 @@ let tick = function (keepTicking) {
             allInfected();
             paused = true;
         }
+ */
     }
-    clockDisplay.textContent = "Day " + day + " (" + clock + ", " + infectedCount + "/" + populationSize + " = " + ((100.0 * infectedCount) / populationSize).toFixed(1) + "%)";
 };
 
 let makeSvg = function () {
@@ -254,7 +258,10 @@ let makeSvg = function () {
     //svg += "</g>";
 
     // add the clock
-    svg += "<text id=\"clockDisplay\" x=\"-1\" y=\"-1\" font-family=\"Verdana\" font-size=\"0.075\" fill=\"#404040\">Ready</text>";
+    svg += "<text id=\"clockDisplay\" x=\"-1.1\" y=\"-1.05\" font-family=\"Verdana\" font-size=\"0.0625\" fill=\"#404040\">Ready</text>";
+    svg += "<text id=\"r0Display\" x=\"-1.1\" y=\"1.075\" font-family=\"Verdana\" font-size=\"0.05\" fill=\"#404040\">R: -</text>";
+    svg += "<text id=\"mortalityRateDisplay\" x=\"-0.33\" y=\"1.075\" font-family=\"Verdana\" font-size=\"0.05\" fill=\"#404040\">Mortality: - / 100,000</text>";
+    svg += "<text id=\"caseFatilityRateDisplay\" x=\"0.75\" y=\"1.075\" font-family=\"Verdana\" font-size=\"0.05\" fill=\"#404040\">CFR: - %</text>";
 
     // close the SVG
     svg += "</svg>";
@@ -268,6 +275,9 @@ let linkSvg = function () {
         atom.link = link;
     }
     clockDisplay = document.getElementById ("clockDisplay");
+    r0Display = document.getElementById ("r0Display");
+    mortalityRateDisplay = document.getElementById ("mortalityRateDisplay");
+    caseFatilityRateDisplay = document.getElementById ("caseFatilityRateDisplay");
 
     // create a dummy atom to clear status on so that we can remove an "if"
     // statement from the inner loop (this object will be abandoned very early)
@@ -315,6 +325,6 @@ let init = function () {
     linkSvg();
 
     // complete the display
-    makeSirPlot();
-    makeTree();
+    makeSirdPlot();
+    makeTree(true);
 };

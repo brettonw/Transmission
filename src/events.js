@@ -48,7 +48,7 @@ var onLoad = function () {
     setValue("prophylacticEfficacyRange", 60);
     setValue("prophylacticBlendBiasRange", 60);
     document.getElementById("liveUpdateSirPlotCheckbox").checked = liveUpdateSirPlot = true;
-    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = false;
+    document.getElementById("liveUpdateTreeCheckbox").checked = liveUpdateTree = true;
 
     loaded = true;
 
@@ -86,9 +86,7 @@ var synchUi = function () {
 
         // and initialize the simulator
         init();
-        document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
         document.getElementById("runButton").value = "Run";
-        document.getElementById("stepButton").disabled = false;
     }
 }
 
@@ -112,11 +110,6 @@ var prophylacticBlendBiasRangeInput = function (range) {
     document.getElementById("prophylacticBlendBiasDisplay").innerHTML = range.value + "%";
 }
 
-var animatePairsCheckboxChanged = function (checkbox) {
-    clearHighlight();
-    animatePairs = checkbox.checked;
-}
-
 var liveUpdateSirPlotCheckboxChanged = function (checkbox) {
     liveUpdateSirPlot = checkbox.checked;
 }
@@ -126,20 +119,10 @@ var liveUpdateTreeCheckboxChanged = function (checkbox) {
 }
 
 var runButtonClicked = function (button) {
-    if (button.value == "Reset") {
-        document.getElementById("animatePairsCheckbox").checked = animatePairs = false;
-    }
     var running = toggleRun();
     button.value = running ? "Run" : "Pause";
-    document.getElementById("stepButton").disabled = !running;
-}
-
-var stepButtonClicked = function (button) {
-    document.getElementById("animatePairsCheckbox").checked = animatePairs = true;
-    singleStep();
 }
 
 var simulatorFinished = function () {
     document.getElementById("runButton").value = "Reset";
-    document.getElementById("stepButton").disabled = true;
 }

@@ -11,7 +11,7 @@ var drawTree = function () {
 TreeSvgHelper.setClickHandler(function (clickEvent) { drawTree(); });
 TreeSvg.setNodeRadius(6.0);
 
-var makeTree = function () {
+var makeTree = function (drawIt) {
     // copy the population array, since we want to sort it
     var data = new Array(populationSize);
     for (var i = 0; i < populationSize; ++i) {
@@ -77,13 +77,15 @@ var makeTree = function () {
     }
     var avg = (count > 0) ? (sum / count) : 0;
     var median = (min + max) / 2.0;
-    console.log("R0: avg (" + avg + "), min (" + min + "), max (" + max + "), med (" + median + ")");
-
+    //console.log("R0: avg (" + avg + "), min (" + min + "), max (" + max + "), med (" + median + ")");
+    r0Display.textContent = "R: " + avg.toFixed(3);
 
     // get the root of the tree
-    TreeSvgHelper.index = [];
-    treeRoot = TreeSvgHelper.extractTreeFromParentField(data, "id", "parentId");
-    drawTree();
+    if (drawIt === true) {
+        TreeSvgHelper.index = [];
+        treeRoot = TreeSvgHelper.extractTreeFromParentField(data, "id", "parentId");
+        drawTree();
+    }
 };
 
 
