@@ -19,7 +19,7 @@ var diseases = {
         HEALTHY: { name: "HEALTHY", color: "#FFFFFF", susceptible: true, contagious: 0.00 },
         INFECTED: { name: "INFECTED", color: "#FFC0C0", susceptible: false, contagious: 0.10, daysMin: 7, daysMax: 21 },
         CLINICAL: { name: "CLINICAL", color: "#FF0000", susceptible: false, contagious: 0.50, fatality: 0.002, daysMin: 10, daysMax: 21 },
-        CONVALESCENT: { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00, recurrence: 0.000, daysMin: 56, daysMax: 1825 },
+        CONVALESCENT: { name: "CONVALESCENT", color: "#800000", susceptible: false, contagious: 0.00, recurrence: 0.000, daysMin: 56, daysMax: 3650 },
         DEAD: { name: "DEAD", color: "#808080", susceptible: false, contagious: 0.00 }
     },
     "Recurrent": {

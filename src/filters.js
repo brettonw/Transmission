@@ -47,7 +47,7 @@ var filterCanTransmit = function (states) {
             pt (1.000, 0.700),
             pt (1.000, 0.200),
             pt (0.800, 0.000),
-            pt (0.800, 0.60)
+            pt (0.800, 0.600)
             ];
 
         // return an SVG rendering command within the box provided
@@ -86,15 +86,6 @@ var filterCanTransmit = function (states) {
 
         poly += "<polygon";
         poly += " points=\"" +
-            pts[6] + " " +
-            pts[7] + " " +
-            pts[4] + " " +
-            pts[5] + "\"";
-        poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
-        poly += " />";
-
-        poly += "<polygon";
-        poly += " points=\"" +
             pts[7] + " " +
             pts[2] + " " +
             pts[3] + " " +
@@ -102,12 +93,52 @@ var filterCanTransmit = function (states) {
         poly += " style=\"fill:black;opacity:0.1;stroke:none;\"";
         poly += " />";
 
-        poly += "<polygon";
+        // highlights of the house edges
+        poly += "<polyline";
+        poly += " points=\"" +
+            pts[6] + " " +
+            pts[7] + " " +
+            pts[2] + "\"";
+        poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
+        poly += " />";
+
+        poly += "<polyline";
         poly += " points=\"" +
             pts[7] + " " +
-            pts[2] + " " +
-            pts[3] + " " +
             pts[4] + "\"";
+        poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
+        poly += " />";
+
+        // compute the door points
+        let ptFromPts = function (index) {
+            let pt = pts[index].split (",");
+            return [parseFloat(pt[0]), parseFloat(pt[1])];
+        };
+
+        let interpolatePts = function (indexPtA, indexPtB, interpolant) {
+            let ptA = ptFromPts(indexPtA);
+            let ptB = ptFromPts(indexPtB);
+            let interpolatedPt = [ptA[0] + (interpolant * (ptB[0] - ptA[0])), ptA[1] + (interpolant * (ptB[1] - ptA[1]))];
+            pts.push (interpolatedPt[0] + "," + interpolatedPt[1]);
+            return (pts.length - 1);
+        };
+
+        let doorHeight = 0.75;
+        let i1 = interpolatePts(0, 1, doorHeight);
+        let i2 = interpolatePts(6, 7, doorHeight);
+        let doorWidth = 0.3;
+        let doorWidthOffset = (1.0 - doorWidth) / 2.0;
+        let d1 = interpolatePts(0, 6, doorWidthOffset);
+        let d2 = interpolatePts(i1, i2, doorWidthOffset);
+        let d3 = interpolatePts(i2, i1, doorWidthOffset);
+        let d4 = interpolatePts(6, 0, doorWidthOffset);
+        // door
+        poly += "<polyline";
+        poly += " points=\"" +
+            pts[d1] + " " +
+            pts[d2] + " " +
+            pts[d3] + " " +
+            pts[d4] + "\"";
         poly += " style=\"fill:none;stroke:black;stroke-width:0.0025;\"";
         poly += " />";
 
